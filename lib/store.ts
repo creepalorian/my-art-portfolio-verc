@@ -7,7 +7,9 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const DATA_FILE_KEY = 'art-portfolio-data.json';
+// Use a folder path for better organization and matching image behavior
+const DATA_FILE_KEY = 'art-portfolio/data.json';
+const PUBLIC_ID = 'art-portfolio/data.json'; // Public ID usually includes folder
 
 export interface Artwork {
     id: string;
@@ -21,15 +23,23 @@ export interface Artwork {
     createdAt: number;
 }
 
+export async function getDebugInfo() {
+    // Generate URL for debugging
+    const url = cloudinary.url(PUBLIC_ID, {
+        resource_type: 'raw',
+        secure: true
+    });
+    return { url, publicId: PUBLIC_ID };
+}
+
 export async function getArtworks(): Promise<Artwork[]> {
     try {
-        // Construct the URL for the raw file
-        const url = cloudinary.url(DATA_FILE_KEY, {
+        const url = cloudinary.url(PUBLIC_ID, {
             resource_type: 'raw',
             secure: true
         });
 
-        // Add a cache-busting timestamp to prevent caching issues
+        // Add cache busting
         const response = await fetch(`${url}?t=${Date.now()}`, {
             cache: 'no-store'
         });
@@ -54,14 +64,19 @@ export async function saveArtworks(artworks: Artwork[]): Promise<void> {
         await new Promise((resolve, reject) => {
             cloudinary.uploader.upload_stream(
                 {
-                    public_id: DATA_FILE_KEY,
+                    public_id: PUBLIC_ID,  // Explicitly set the public ID
                     resource_type: 'raw',
                     overwrite: true,
-                    invalidate: true // Important to clear CDN cache
+                    invalidate: true
                 },
                 (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result);
+                    if (error) {
+                        console.error('Cloudinary upload error:', error);
+                        reject(error);
+                    } else {
+                        console.log('Saved data to Cloudinary:', result?.secure_url);
+                        resolve(result);
+                    }
                 }
             ).end(buffer);
         });

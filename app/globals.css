@@ -45,7 +45,27 @@ a:hover {
   color: #888;
 }
 
-h1,
+/* Global Page Layout Normalization */
+/* This targets the main content div wrapper in layout.tsx */
+body>div {
+  padding-top: 120px;
+  /* Consistent top spacing for all pages */
+  padding-left: var(--spacing-xl);
+  padding-right: var(--spacing-xl);
+  padding-bottom: var(--spacing-xl);
+  min-height: 100vh;
+}
+
+/* Standardized Typography */
+h1 {
+  font-size: 2.5rem;
+  /* Consistent size for Works, About, Contact, Publishing */
+  font-weight: 700;
+  margin-bottom: var(--spacing-lg);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
 h2,
 h3,
 h4,

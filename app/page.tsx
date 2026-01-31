@@ -1,35 +1,23 @@
-import GalleryGrid from '@/components/GalleryGrid';
-import { getArtworks } from '@/lib/store';
-
-export const revalidate = 0; // Disable cache to ensure fresh data for now
-
-export default async function Home() {
-  const artworks = await getArtworks();
-
-  return (
-    <main className="container" style={{ paddingBottom: 'var(--spacing-xl)' }}>
-      <section style={{
-        padding: 'var(--spacing-lg) 0',
-        textAlign: 'center'
-      }}>
-        <h1 style={{
-          fontSize: '3.5rem',
-          marginBottom: 'var(--spacing-sm)',
-          letterSpacing: '-0.03em'
-        }}>
-          Selected Works
-        </h1>
-        <p style={{
-          color: '#888',
-          maxWidth: '600px',
-          margin: '0 auto',
-          fontSize: '1.1rem'
-        }}>
-          A collection of digital and physical mediums exploring form, texture, and emotion.
-        </p>
-      </section>
-
-      <GalleryGrid artworks={artworks} />
-    </main>
-  );
+export default function LandingPage() {
+    return (
+        <main
+            style={{
+                position: 'fixed',
+                top: 0,
+                left: 250, // Start after sidebar
+                right: 0,
+                bottom: 0,
+                backgroundImage: 'url(/manga-bg.png)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                zIndex: -1, // Behind everything content-wise in this pane
+            }}
+        >
+            {/* 
+        The landing page is purely visual ambiance.
+        Navigation is handled by the persistent Sidebar.
+      */}
+        </main>
+    );
 }

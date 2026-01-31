@@ -114,3 +114,21 @@ h6 {
 .btn-outline:hover {
   border-color: var(--foreground);
 }
+
+/* Mobile Responsive Styles */
+.main-content {
+  margin-left: 250px;
+  min-height: 100vh;
+}
+
+@media (max-width: 767px) {
+  .main-content {
+    margin-left: 0;
+  }
+
+  body>div {
+    padding-top: 80px !important;
+    padding-left: var(--spacing-sm) !important;
+    padding-right: var(--spacing-sm) !important;
+  }
+}

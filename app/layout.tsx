@@ -23,8 +23,8 @@ export default function RootLayout({
       <body>
         <Sidebar />
 
-        {/* Main Content Area - Pushed right by Sidebar */}
-        <div style={{ marginLeft: '250px' }}>
+        {/* Main Content Area - Responsive margin */}
+        <div className="main-content">
           {children}
         </div>
       </body>

@@ -9,6 +9,9 @@ export interface Artwork {
     description: string;
     imageUrl: string;
     category: string;
+    medium: string;        // e.g., "Oil on Canvas", "Digital", "Acrylic"
+    date: string;          // YYYY-MM-DD format
+    dimensions: string;    // e.g., "24 x 36 inches"
     createdAt: number;
 }
 

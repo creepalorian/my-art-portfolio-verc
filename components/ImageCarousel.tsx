@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const images = [
     "/manga-bg.png",
@@ -11,24 +11,50 @@ const images = [
 export default function ImageCarousel() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(true);
+    const [progress, setProgress] = useState(0);
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Auto-scroll when playing
+    // Auto-scroll and progress when playing
     useEffect(() => {
-        if (!isPlaying) return;
+        if (!isPlaying) {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+            setProgress(0);
+            return;
+        }
 
-        const timer = setInterval(() => {
+        // Reset progress
+        setProgress(0);
+
+        // Progress bar update (60fps for smooth animation)
+        progressIntervalRef.current = setInterval(() => {
+            setProgress((prev) => {
+                if (prev >= 100) return 0;
+                return prev + (100 / (5000 / 16.67)); // 5 seconds total
+            });
+        }, 16.67);
+
+        // Image transition
+        intervalRef.current = setInterval(() => {
             setCurrentIndex((prev) => (prev + 1) % images.length);
+            setProgress(0);
         }, 5000);
 
-        return () => clearInterval(timer);
-    }, [isPlaying]);
+        return () => {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+        };
+    }, [isPlaying, currentIndex]);
 
     const goToPrevious = () => {
         setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+        setProgress(0);
     };
 
     const goToNext = () => {
         setCurrentIndex((prev) => (prev + 1) % images.length);
+        setProgress(0);
     };
 
     const togglePlay = () => {
@@ -67,6 +93,31 @@ export default function ImageCarousel() {
                     />
                 ))}
             </div>
+
+            {/* Progress Bar */}
+            {isPlaying && (
+                <div
+                    style={{
+                        position: "absolute",
+                        bottom: "80px",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: "200px",
+                        height: "2px",
+                        background: "rgba(255, 255, 255, 0.3)",
+                        zIndex: 100,
+                    }}
+                >
+                    <div
+                        style={{
+                            height: "100%",
+                            width: `${progress}%`,
+                            background: "white",
+                            transition: "width 0.016s linear",
+                        }}
+                    />
+                </div>
+            )}
 
             {/* Bottom Controls Container */}
             <div
@@ -145,7 +196,10 @@ export default function ImageCarousel() {
                     {images.map((_, index) => (
                         <button
                             key={index}
-                            onClick={() => setCurrentIndex(index)}
+                            onClick={() => {
+                                setCurrentIndex(index);
+                                setProgress(0);
+                            }}
                             style={{
                                 width: "12px",
                                 height: "12px",

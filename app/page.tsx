@@ -9,7 +9,6 @@ export default function LandingPage() {
                 left: 250, // Start after sidebar
                 right: 0,
                 bottom: 0,
-                zIndex: -1,
             }}
         >
             <ImageCarousel />

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Comfortaa } from "next/font/google"; // Ensure this matches the previous import exactly if needed, likely just correct
+import { Comfortaa } from "next/font/google";
 import Sidebar from "@/components/Sidebar";
-import Frame from "@/components/Frame";
 import "./globals.css";
 
 const comfortaa = Comfortaa({
@@ -22,7 +21,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={comfortaa.variable}>
       <body>
-        <Frame />
         <Sidebar />
 
         {/* Main Content Area - Pushed right by Sidebar */}

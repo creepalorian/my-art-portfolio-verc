@@ -22,7 +22,7 @@ export default function Sidebar() {
                 onClick={() => setIsOpen(!isOpen)}
                 style={{
                     position: "fixed",
-                    top: "20px",
+                    top: "70px",
                     left: "20px",
                     zIndex: 200,
                     background: "rgba(255, 255, 255, 0.1)",
@@ -48,7 +48,7 @@ export default function Sidebar() {
             <aside
                 style={{
                     position: "fixed",
-                    top: 0,
+                    top: 60, // Below header
                     left: isOpen ? 0 : "-250px",
                     bottom: 0,
                     width: "250px",
@@ -62,26 +62,13 @@ export default function Sidebar() {
                 }}
                 className="sidebar"
             >
-                {/* Logo */}
-                <Link
-                    href="/"
-                    onClick={() => setIsOpen(false)}
-                    style={{
-                        fontSize: "1.5rem",
-                        fontWeight: 700,
-                        letterSpacing: "-0.02em",
-                        marginTop: "60px",
-                    }}
-                >
-                    AD
-                </Link>
-
                 {/* Navigation */}
                 <nav
                     style={{
                         display: "flex",
                         flexDirection: "column",
                         gap: "var(--spacing-sm)",
+                        marginTop: "var(--spacing-md)",
                     }}
                 >
                     {navItems.map((item) => {
@@ -123,7 +110,7 @@ export default function Sidebar() {
                     onClick={() => setIsOpen(false)}
                     style={{
                         position: "fixed",
-                        top: 0,
+                        top: 60,
                         left: 0,
                         right: 0,
                         bottom: 0,

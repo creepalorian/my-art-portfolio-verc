@@ -146,3 +146,16 @@ h6 {
     left: 0;
   }
 }
+
+/* Adjust for header */
+.sidebar {
+  top: 60px !important;
+}
+
+.main-content {
+  padding-top: 60px;
+}
+
+.landing-page {
+  top: 60px !important;
+}

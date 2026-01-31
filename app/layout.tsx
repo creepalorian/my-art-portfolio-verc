@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Comfortaa } from "next/font/google";
+import TopHeader from "@/components/TopHeader";
 import Sidebar from "@/components/Sidebar";
 import "./globals.css";
 
@@ -21,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={comfortaa.variable}>
       <body>
+        <TopHeader />
         <Sidebar />
 
         {/* Main Content Area - Responsive margin */}

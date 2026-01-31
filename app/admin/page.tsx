@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import ArtworkForm from '@/components/ArtworkForm';
 import { Artwork } from '@/lib/store';
 
 export default function AdminPage() {
+    const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [password, setPassword] = useState('');
@@ -61,6 +63,7 @@ export default function AdminPage() {
         const response = await fetch('/api/artworks');
         const data = await response.json();
         setArtworks(data);
+        router.refresh();
     }
 
     async function handleDelete(id: string) {
@@ -92,7 +95,8 @@ export default function AdminPage() {
                     width: '100%',
                     background: 'var(--surface)',
                     padding: '2rem',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
+                    fontFamily: 'var(--font-comfortaa)'
                 }}>
                     <h1 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>Admin Login</h1>
 
@@ -109,7 +113,8 @@ export default function AdminPage() {
                             border: '1px solid var(--border)',
                             borderRadius: '4px',
                             color: 'var(--foreground)',
-                            fontSize: '1rem'
+                            fontSize: '1rem',
+                            fontFamily: 'var(--font-comfortaa)'
                         }}
                         autoFocus
                     />
@@ -129,60 +134,67 @@ export default function AdminPage() {
     }
 
     return (
-        <main>
+        <main style={{ fontFamily: 'var(--font-comfortaa)' }}>
             <div style={{
                 display: 'flex',
-                justifyContent: 'space-between',
+                justifyContent: 'flex-end', // Moved logout to right, removed "Admin Panel" header
                 alignItems: 'center',
-                marginBottom: '2rem'
+                marginBottom: '2rem',
+                paddingTop: '1rem'
             }}>
-                <h1>Admin Panel</h1>
-                <button onClick={handleLogout} className="btn btn-outline">
+                <button onClick={handleLogout} className="btn btn-outline" style={{ fontSize: '0.9rem' }}>
                     Logout
                 </button>
             </div>
 
-            <section style={{ marginBottom: '3rem' }}>
-                <h2 style={{ marginBottom: '1rem' }}>Add New Artwork</h2>
+            <section style={{ marginBottom: '4rem', maxWidth: '800px', margin: '0 auto 4rem' }}>
                 <ArtworkForm onSuccess={fetchArtworks} />
             </section>
 
-            <section>
-                <h2 style={{ marginBottom: '1rem' }}>Manage Artworks ({artworks.length})</h2>
+            <section style={{ maxWidth: '800px', margin: '0 auto' }}>
+                <h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: 700 }}>Existing Artworks ({artworks.length})</h2>
                 <div style={{ display: 'grid', gap: '1rem' }}>
                     {artworks.map((artwork) => (
                         <div
                             key={artwork.id}
                             style={{
                                 display: 'flex',
-                                gap: '1rem',
-                                padding: '1rem',
+                                gap: '1.5rem',
+                                padding: '1.5rem',
                                 background: 'var(--surface)',
-                                borderRadius: '4px',
-                                alignItems: 'center'
+                                borderRadius: '8px',
+                                alignItems: 'center',
+                                border: '1px solid var(--border)'
                             }}
                         >
                             <img
                                 src={artwork.imageUrl}
                                 alt={artwork.title}
                                 style={{
-                                    width: '100px',
-                                    height: '100px',
+                                    width: '120px',
+                                    height: '120px',
                                     objectFit: 'cover',
                                     borderRadius: '4px'
                                 }}
                             />
                             <div style={{ flex: 1 }}>
-                                <h3>{artwork.title}</h3>
-                                <p style={{ fontSize: '0.9rem', opacity: 0.7 }}>
-                                    {artwork.medium} • {artwork.date} • {artwork.dimensions}
+                                <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{artwork.title}</h3>
+                                <p style={{ fontSize: '0.95rem', opacity: 0.8, marginBottom: '0.25rem' }}>
+                                    {artwork.medium}
                                 </p>
-                                <p style={{ fontSize: '0.9rem', opacity: 0.7 }}>{artwork.category}</p>
+                                <p style={{ fontSize: '0.9rem', opacity: 0.6 }}>
+                                    {artwork.date} • {artwork.dimensions}
+                                </p>
                             </div>
                             <button
                                 onClick={() => handleDelete(artwork.id)}
                                 className="btn btn-outline"
-                                style={{ color: '#ff6b6b', borderColor: '#ff6b6b' }}
+                                style={{
+                                    color: '#ff6b6b',
+                                    borderColor: '#ff6b6b',
+                                    padding: '0.5rem 1rem',
+                                    fontSize: '0.9rem'
+                                }}
                             >
                                 Delete
                             </button>

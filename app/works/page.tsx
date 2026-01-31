@@ -3,28 +3,14 @@ import { getArtworks } from '@/lib/store';
 
 export const revalidate = 0; // Disable cache to ensure fresh data for now
 
-export default async function Home() {
+export default async function WorksPage() {
   const artworks = await getArtworks();
 
   return (
-    <main className="container" style={{ paddingBottom: 'var(--spacing-xl)' }}>
-      <section style={{
-        padding: 'var(--spacing-lg) 0',
-        textAlign: 'center'
-      }}>
-        <h1 style={{
-          fontSize: '3.5rem',
-          marginBottom: 'var(--spacing-sm)',
-          letterSpacing: '-0.03em'
-        }}>
-          Selected Works
-        </h1>
-        <p style={{
-          color: '#888',
-          maxWidth: '600px',
-          margin: '0 auto',
-          fontSize: '1.1rem'
-        }}>
+    <main>
+      <section style={{ maxWidth: '1400px' }}>
+        <h1>Selected Works</h1>
+        <p style={{ marginTop: 'var(--spacing-sm)', opacity: 0.8, marginBottom: 'var(--spacing-lg)' }}>
           A collection of digital and physical mediums exploring form, texture, and emotion.
         </p>
       </section>

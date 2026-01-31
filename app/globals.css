@@ -48,8 +48,7 @@ a:hover {
 /* Global Page Layout Normalization */
 /* This targets the main content div wrapper in layout.tsx */
 body>div {
-  padding-top: 160px;
-  /* More spacing to align with gallery */
+  /* padding-top handled by .main-content class */
   padding-left: var(--spacing-xl);
   padding-right: var(--spacing-xl);
   padding-bottom: var(--spacing-xl);

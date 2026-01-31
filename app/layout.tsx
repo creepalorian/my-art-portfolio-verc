@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Comfortaa } from "next/font/google";
 import Header from "@/components/Header";
+import Frame from "@/components/Frame";
 import "./globals.css";
 
 const comfortaa = Comfortaa({
@@ -19,20 +20,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={comfortaa.variable}>
-        {/* Global White Frame */}
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          border: '12px solid #ffffff',
-          pointerEvents: 'none',
-          zIndex: 9999,
-        }} />
-
+    <html lang="en" className={comfortaa.variable}>
+      <body>
+        <Frame />
         <Header />
         {children}
       </body>

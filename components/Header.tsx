@@ -10,11 +10,11 @@ export default function Header() {
             alignItems: 'center'
         }}>
             <Link href="/" style={{
-                fontSize: '1.25rem',
-                fontWeight: 600,
+                fontSize: '1.5rem',
+                fontWeight: 700,
                 letterSpacing: '-0.02em'
             }}>
-                NIKHIL ART
+                AD
             </Link>
             <nav style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
                 <Link href="/" className="btn-outline" style={{ border: 'none' }}>

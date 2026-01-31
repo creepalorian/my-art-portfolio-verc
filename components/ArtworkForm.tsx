@@ -14,11 +14,13 @@ export default function ArtworkForm({ onSuccess }: { onSuccess: () => void }) {
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setUploadProgress('Uploading image...');
+        setSuccessMessage('');
 
         try {
             // Upload image first
@@ -67,6 +69,8 @@ export default function ArtworkForm({ onSuccess }: { onSuccess: () => void }) {
                 setImageFile(null);
                 onSuccess();
                 setUploadProgress('');
+                setSuccessMessage('✨ Artwork added successfully!');
+                setTimeout(() => setSuccessMessage(''), 5000);
             } else {
                 alert('Failed to add artwork');
             }
@@ -186,6 +190,20 @@ export default function ArtworkForm({ onSuccess }: { onSuccess: () => void }) {
                 <p style={{ marginBottom: '1rem', fontSize: '0.9rem', opacity: 0.8 }}>
                     {uploadProgress}
                 </p>
+            )}
+
+            {successMessage && (
+                <div style={{
+                    marginBottom: '1rem',
+                    padding: '0.8rem',
+                    background: 'rgba(0, 255, 0, 0.1)',
+                    border: '1px solid rgba(0, 255, 0, 0.2)',
+                    borderRadius: '4px',
+                    color: '#4ade80',
+                    fontSize: '0.9rem'
+                }}>
+                    {successMessage}
+                </div>
             )}
 
             <button

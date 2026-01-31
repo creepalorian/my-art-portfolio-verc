@@ -9,11 +9,11 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { title, description, imageUrl, category } = body;
+        const { title, description, imageUrl, category, medium, date, dimensions } = body;
 
-        if (!title || !imageUrl) {
+        if (!title || !imageUrl || !medium || !date || !dimensions) {
             return NextResponse.json(
-                { error: 'Title and Image URL are required' },
+                { error: 'Missing required fields: title, imageUrl, medium, date, dimensions' },
                 { status: 400 }
             );
         }
@@ -24,6 +24,9 @@ export async function POST(request: Request) {
             description: description || '',
             imageUrl,
             category: category || 'Uncategorized',
+            medium,
+            date,
+            dimensions,
         });
 
         return NextResponse.json(newArtwork, { status: 201 });

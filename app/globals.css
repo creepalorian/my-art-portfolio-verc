@@ -155,7 +155,7 @@ h6 {
 }
 
 .main-content {
-  padding-top: 60px;
+  padding-top: calc(60px + var(--spacing-md) * 2);
 }
 
 .landing-page {

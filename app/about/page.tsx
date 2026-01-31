@@ -2,8 +2,7 @@ export default function AboutPage() {
     return (
         <main>
             <section style={{ maxWidth: '800px' }}>
-                <h1>About Me</h1>
-                <p style={{ marginTop: 'var(--spacing-sm)', opacity: 0.8, lineHeight: '1.8' }}>
+                <p style={{ opacity: 0.8, lineHeight: '1.8' }}>
                     Hello! I am a digital artist focused on creating immersive visual experiences.
                     My work bridges the gap between traditional techniques and modern technology.
                 </p>

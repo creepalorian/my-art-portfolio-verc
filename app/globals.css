@@ -48,8 +48,8 @@ a:hover {
 /* Global Page Layout Normalization */
 /* This targets the main content div wrapper in layout.tsx */
 body>div {
-  padding-top: 120px;
-  /* Consistent top spacing for all pages */
+  padding-top: 92px;
+  /* 60px header + 32px to align with sidebar nav */
   padding-left: var(--spacing-xl);
   padding-right: var(--spacing-xl);
   padding-bottom: var(--spacing-xl);
@@ -132,6 +132,7 @@ h6 {
     padding-right: var(--spacing-sm) !important;
   }
 }
+
 /* Landing Page Styles */
 .landing-page {
   position: fixed;

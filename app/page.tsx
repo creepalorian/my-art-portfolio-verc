@@ -1,3 +1,5 @@
+import ImageCarousel from "@/components/ImageCarousel";
+
 export default function LandingPage() {
     return (
         <main
@@ -7,17 +9,10 @@ export default function LandingPage() {
                 left: 250, // Start after sidebar
                 right: 0,
                 bottom: 0,
-                backgroundImage: 'url(/manga-bg.png)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                zIndex: -1, // Behind everything content-wise in this pane
+                zIndex: -1,
             }}
         >
-            {/* 
-        The landing page is purely visual ambiance.
-        Navigation is handled by the persistent Sidebar.
-      */}
+            <ImageCarousel />
         </main>
     );
 }

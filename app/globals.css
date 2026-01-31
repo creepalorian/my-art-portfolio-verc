@@ -132,3 +132,17 @@ h6 {
     padding-right: var(--spacing-sm) !important;
   }
 }
+/* Landing Page Styles */
+.landing-page {
+  position: fixed;
+  top: 0;
+  left: 250px;
+  right: 0;
+  bottom: 0;
+}
+
+@media (max-width: 767px) {
+  .landing-page {
+    left: 0;
+  }
+}

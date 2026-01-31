@@ -1,7 +1,13 @@
-import fs from 'fs/promises';
-import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
 
-const DATA_FILE = path.join(process.cwd(), 'data.json');
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const DATA_FILE_KEY = 'art-portfolio-data.json';
 
 export interface Artwork {
     id: string;
@@ -9,27 +15,59 @@ export interface Artwork {
     description: string;
     imageUrl: string;
     category: string;
-    medium: string;        // e.g., "Oil on Canvas", "Digital", "Acrylic"
-    date: string;          // YYYY-MM-DD format
-    dimensions: string;    // e.g., "24 x 36 inches"
+    medium: string;
+    date: string;
+    dimensions: string;
     createdAt: number;
 }
 
 export async function getArtworks(): Promise<Artwork[]> {
     try {
-        const data = await fs.readFile(DATA_FILE, 'utf-8');
-        return JSON.parse(data);
+        // Construct the URL for the raw file
+        const url = cloudinary.url(DATA_FILE_KEY, {
+            resource_type: 'raw',
+            secure: true
+        });
+
+        // Add a cache-busting timestamp to prevent caching issues
+        const response = await fetch(`${url}?t=${Date.now()}`, {
+            cache: 'no-store'
+        });
+
+        if (!response.ok) {
+            console.log('No data file found (first run?), returning empty list');
+            return [];
+        }
+
+        return await response.json();
     } catch (error) {
-        console.error('Error reading data file:', error);
+        console.error('Error reading data from Cloudinary:', error);
         return [];
     }
 }
 
 export async function saveArtworks(artworks: Artwork[]): Promise<void> {
     try {
-        await fs.writeFile(DATA_FILE, JSON.stringify(artworks, null, 2));
+        const jsonString = JSON.stringify(artworks, null, 2);
+        const buffer = Buffer.from(jsonString);
+
+        await new Promise((resolve, reject) => {
+            cloudinary.uploader.upload_stream(
+                {
+                    public_id: DATA_FILE_KEY,
+                    resource_type: 'raw',
+                    overwrite: true,
+                    invalidate: true // Important to clear CDN cache
+                },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            ).end(buffer);
+        });
     } catch (error) {
-        console.error('Error writing data file:', error);
+        console.error('Error saving data to Cloudinary:', error);
+        throw error;
     }
 }
 

@@ -11,9 +11,8 @@ export default function AboutPage() {
                 <p style={{ lineHeight: '1.8', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
                     This portfolio serves as a live catalog of his ongoing exploration with art.
                 </p>
-                <p style={{ marginTop: 'var(--spacing-sm)', opacity: 0.8, lineHeight: '1.8' }}>
-                    This portfolio serves as a catalog of my ongoing exploration into generative art,
-                    3D sculpting, and oil painting.
+                <p style={{ lineHeight: '1.8', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
+                    For inquiries, please reach out via email.
                 </p>
                 For inquiries, please reach out via email.
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import ArtworkForm from '@/components/ArtworkForm';
 import { Artwork } from '@/lib/store';
 
@@ -286,12 +287,12 @@ export default function AdminPage() {
                                 </button>
                             </div>
 
-                            <img
+                            <Image
                                 src={artwork.imageUrl}
                                 alt={artwork.title}
+                                width={100}
+                                height={100}
                                 style={{
-                                    width: '100px',
-                                    height: '100px',
                                     objectFit: 'cover',
                                     borderRadius: '4px'
                                 }}

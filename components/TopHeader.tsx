@@ -29,7 +29,14 @@ export default function TopHeader() {
                     color: "black",
                 }}
             >
-                AD
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <img
+                        src="/header-logo.png"
+                        alt="Logo"
+                        style={{ height: "1.8rem", width: "auto" }}
+                    />
+                    <span>AD</span>
+                </div>
             </Link>
         </header>
     );

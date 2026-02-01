@@ -121,9 +121,25 @@ export default function ImageCarousel({ images = [] }: { images?: CarouselImage[
                 {/* Play/Pause Button */}
                 <button
                     onClick={togglePlay}
-                    className={`${styles.controlButton} ${styles.controlButtonPlay}`}
+                    className="carousel-control-btn"
+                    style={{
+                        width: "40px",
+                        height: "40px",
+                        // fontSize removed since we are using SVGs
+                    }}
+                    aria-label={isPlaying ? "Pause" : "Play"}
                 >
-                    {isPlaying ? "⏸" : "▶"}
+                    {isPlaying ? (
+                        /* Pause Icon */
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                            <path d="M4 14H2V0H4V14ZM12 14H10V0H12V14Z" />
+                        </svg>
+                    ) : (
+                        /* Play Icon */
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                            <path d="M0 0V14L11 7L0 0Z" />
+                        </svg>
+                    )}
                 </button>
 
                 {/* Dots Indicator */}

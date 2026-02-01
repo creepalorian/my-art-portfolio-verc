@@ -160,3 +160,28 @@ h6 {
 .landing-page {
   top: 60px !important;
 }
+
+/* Fix for Carousel Controls on Mobile */
+.carousel-control-btn {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 50%;
+  cursor: pointer;
+  color: white !important;
+  fill: white !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  /* Mobile Reset */
+  -webkit-appearance: none;
+  appearance: none;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.carousel-control-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+}

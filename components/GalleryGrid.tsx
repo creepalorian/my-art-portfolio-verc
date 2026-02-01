@@ -1,7 +1,7 @@
 "use client";
 
 import { Artwork } from '@/lib/store';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);

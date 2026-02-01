@@ -16,14 +16,13 @@ export default function AboutPage() {
                     3D sculpting, and oil painting.
                 </p>
                 For inquiries, please reach out via email.
-            </p>
 
-            <div style={{ marginTop: 'var(--spacing-md)' }}>
-                <a href="mailto:hello@example.com" className="btn btn-primary">
-                    Contact Me
-                </a>
-            </div>
-        </section>
+                <div style={{ marginTop: 'var(--spacing-md)' }}>
+                    <a href="mailto:hello@example.com" className="btn btn-primary">
+                        Contact Me
+                    </a>
+                </div>
+            </section>
         </main >
     );
 }

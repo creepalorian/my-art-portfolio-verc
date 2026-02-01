@@ -24,9 +24,9 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
             onClick={() => setSelectedArtwork(artwork)}
           >
             <img src={artwork.imageUrl} alt={artwork.title} loading="lazy" />
-            <div className="overlay">
+            <div className="artwork-overlay">
               <h3>{artwork.title}</h3>
-              <p>{artwork.category}</p>
+              <p>{new Date(artwork.date).getFullYear()}</p>
             </div>
           </div>
         ))}
@@ -42,7 +42,7 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
             <img src={selectedArtwork.imageUrl} alt={selectedArtwork.title} />
             <div className="info">
               <h2>{selectedArtwork.title}</h2>
-              <p className="meta">{selectedArtwork.category} • {new Date(selectedArtwork.createdAt).toLocaleDateString()}</p>
+              <p className="meta">{selectedArtwork.medium} • {new Date(selectedArtwork.date).getFullYear()} • {selectedArtwork.dimensions}</p>
               <p className="desc">{selectedArtwork.description}</p>
             </div>
           </div>
@@ -86,6 +86,24 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
           opacity: 0;
           transition: opacity 0.3s ease;
           color: white;
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-end;
+          height: 100%;
+        }
+        
+        .artwork-overlay h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        
+        .artwork-overlay p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 1rem;
         }
 
         .masonry-item:hover .artwork-overlay {

@@ -74,7 +74,10 @@ export default function AdminPage() {
     }
 
     async function fetchArtworks() {
-        const response = await fetch('/api/artworks');
+        // Add timestamp to prevent caching
+        const response = await fetch(`/api/artworks?t=${Date.now()}`, {
+            cache: 'no-store'
+        });
         const data = await response.json();
         setArtworks(data);
         router.refresh();

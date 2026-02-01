@@ -93,14 +93,49 @@ export default function ImageCarousel({ images = [] }: { images?: CarouselImage[
                             position: "relative",
                         }}
                     >
-                        <Image
-                            src={img.src}
-                            alt={img.alt}
-                            fill
-                            style={{ objectFit: "cover" }}
-                            priority={index === 0}
-                            sizes="100vw"
-                        />
+                        {/* Blurred Background with reliable stacking */}
+                        <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            zIndex: 1
+                        }}>
+                            <Image
+                                src={img.src}
+                                alt=""
+                                fill
+                                style={{
+                                    objectFit: "cover",
+                                    filter: "blur(20px) brightness(0.7)",
+                                    transform: "scale(1.1)" // Prevent blur edges
+                                }}
+                                priority={index === 0}
+                            />
+                        </div>
+
+                        {/* Main Image - Contained */}
+                        <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            zIndex: 2
+                        }}>
+                            <Image
+                                src={img.src}
+                                alt={img.alt}
+                                fill
+                                style={{
+                                    objectFit: "contain",
+                                    padding: '2rem' // Give it some breathing room
+                                }}
+                                priority={index === 0}
+                                sizes="100vw"
+                            />
+                        </div>
                         {/* Caption Overlay */}
                         <div style={{
                             position: 'absolute',

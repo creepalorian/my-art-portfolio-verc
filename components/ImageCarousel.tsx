@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-
+import styles from "./ImageCarousel.module.css";
 
 interface CarouselImage {
     src: string;
@@ -67,31 +67,18 @@ export default function ImageCarousel({ images = [] }: { images?: CarouselImage[
     };
 
     return (
-        <div
-            style={{
-                position: "relative",
-                width: "100%",
-                height: "100%",
-                overflow: "hidden",
-            }}
-        >
+        <div className={styles.carouselContainer}>
             {/* Image Container */}
             <div
+                className={styles.slidesContainer}
                 style={{
-                    display: "flex",
-                    transition: "transform 0.5s ease-in-out",
                     transform: `translateX(-${currentIndex * 100}%)`,
-                    height: "100%",
                 }}
             >
                 {displayImages.map((img, index) => (
                     <div
                         key={index}
-                        style={{
-                            minWidth: "100%",
-                            height: "100%",
-                            position: "relative",
-                        }}
+                        className={styles.slide}
                     >
                         <Image
                             src={img.src}
@@ -102,17 +89,8 @@ export default function ImageCarousel({ images = [] }: { images?: CarouselImage[
                             sizes="100vw"
                         />
                         {/* Caption Overlay */}
-                        <div style={{
-                            position: 'absolute',
-                            bottom: '120px',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            color: 'white',
-                            textAlign: 'center',
-                            textShadow: '0 2px 4px rgba(0,0,0,0.5)',
-                            zIndex: 10
-                        }}>
-                            <h2 style={{ fontSize: '1rem', margin: 0, fontWeight: 500, letterSpacing: '0.05em' }}>{img.alt}</h2>
+                        <div className={styles.caption}>
+                            <h2 className={styles.captionText}>{img.alt}</h2>
                         </div>
                     </div>
                 ))}
@@ -120,69 +98,22 @@ export default function ImageCarousel({ images = [] }: { images?: CarouselImage[
 
             {/* Progress Bar */}
             {isPlaying && (
-                <div
-                    style={{
-                        position: "absolute",
-                        bottom: "80px",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        width: "200px",
-                        height: "2px",
-                        background: "rgba(255, 255, 255, 0.3)",
-                        zIndex: 100,
-                    }}
-                >
+                <div className={styles.progressBarContainer}>
                     <div
+                        className={styles.progressBarFill}
                         style={{
-                            height: "100%",
                             width: `${progress}%`,
-                            background: "white",
-                            transition: "width 0.016s linear",
                         }}
                     />
                 </div>
             )}
 
             {/* Bottom Controls Container */}
-            <div
-                style={{
-                    position: "absolute",
-                    bottom: "30px",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "20px",
-                    zIndex: 100,
-                }}
-            >
+            <div className={styles.controlsContainer}>
                 {/* Left Arrow */}
                 <button
                     onClick={goToPrevious}
-                    style={{
-                        background: "rgba(255, 255, 255, 0.2)",
-                        border: "1px solid rgba(255, 255, 255, 0.5)",
-                        borderRadius: "50%",
-                        width: "40px",
-                        height: "40px",
-                        cursor: "pointer",
-                        fontSize: "1.2rem",
-                        color: "white",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        transition: "all 0.2s ease",
-                        WebkitAppearance: "none",
-                        appearance: "none",
-                        padding: 0,
-                        WebkitTapHighlightColor: "transparent",
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)";
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
-                    }}
+                    className={`${styles.controlButton} ${styles.controlButtonArrow}`}
                 >
                     ←
                 </button>
@@ -190,41 +121,13 @@ export default function ImageCarousel({ images = [] }: { images?: CarouselImage[
                 {/* Play/Pause Button */}
                 <button
                     onClick={togglePlay}
-                    style={{
-                        background: "rgba(255, 255, 255, 0.2)",
-                        border: "1px solid rgba(255, 255, 255, 0.5)",
-                        borderRadius: "50%",
-                        width: "40px",
-                        height: "40px",
-                        cursor: "pointer",
-                        fontSize: "1rem",
-                        color: "white",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        transition: "all 0.2s ease",
-                        WebkitAppearance: "none",
-                        appearance: "none",
-                        padding: 0,
-                        WebkitTapHighlightColor: "transparent",
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)";
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
-                    }}
+                    className={`${styles.controlButton} ${styles.controlButtonPlay}`}
                 >
                     {isPlaying ? "⏸" : "▶"}
                 </button>
 
                 {/* Dots Indicator */}
-                <div
-                    style={{
-                        display: "flex",
-                        gap: "10px",
-                    }}
-                >
+                <div className={styles.indicatorsContainer}>
                     {displayImages.map((_, index) => (
                         <button
                             key={index}
@@ -232,15 +135,7 @@ export default function ImageCarousel({ images = [] }: { images?: CarouselImage[
                                 setCurrentIndex(index);
                                 setProgress(0);
                             }}
-                            style={{
-                                width: "12px",
-                                height: "12px",
-                                borderRadius: "50%",
-                                border: "1px solid white",
-                                background: currentIndex === index ? "white" : "transparent",
-                                cursor: "pointer",
-                                transition: "all 0.2s ease",
-                            }}
+                            className={`${styles.indicatorDot} ${currentIndex === index ? styles.indicatorDotActive : ''}`}
                         />
                     ))}
                 </div>
@@ -248,30 +143,7 @@ export default function ImageCarousel({ images = [] }: { images?: CarouselImage[
                 {/* Right Arrow */}
                 <button
                     onClick={goToNext}
-                    style={{
-                        background: "rgba(255, 255, 255, 0.2)",
-                        border: "1px solid rgba(255, 255, 255, 0.5)",
-                        borderRadius: "50%",
-                        width: "40px",
-                        height: "40px",
-                        cursor: "pointer",
-                        fontSize: "1.2rem",
-                        color: "white",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        transition: "all 0.2s ease",
-                        WebkitAppearance: "none",
-                        appearance: "none",
-                        padding: 0,
-                        WebkitTapHighlightColor: "transparent",
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)";
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
-                    }}
+                    className={`${styles.controlButton} ${styles.controlButtonArrow}`}
                 >
                     →
                 </button>

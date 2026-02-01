@@ -172,6 +172,10 @@ export default function ImageCarousel({ images = [] }: { images?: CarouselImage[
                         alignItems: "center",
                         justifyContent: "center",
                         transition: "all 0.2s ease",
+                        WebkitAppearance: "none",
+                        appearance: "none",
+                        padding: 0,
+                        WebkitTapHighlightColor: "transparent",
                     }}
                     onMouseEnter={(e) => {
                         e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)";
@@ -199,6 +203,10 @@ export default function ImageCarousel({ images = [] }: { images?: CarouselImage[
                         alignItems: "center",
                         justifyContent: "center",
                         transition: "all 0.2s ease",
+                        WebkitAppearance: "none",
+                        appearance: "none",
+                        padding: 0,
+                        WebkitTapHighlightColor: "transparent",
                     }}
                     onMouseEnter={(e) => {
                         e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)";
@@ -253,6 +261,10 @@ export default function ImageCarousel({ images = [] }: { images?: CarouselImage[
                         alignItems: "center",
                         justifyContent: "center",
                         transition: "all 0.2s ease",
+                        WebkitAppearance: "none",
+                        appearance: "none",
+                        padding: 0,
+                        WebkitTapHighlightColor: "transparent",
                     }}
                     onMouseEnter={(e) => {
                         e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)";

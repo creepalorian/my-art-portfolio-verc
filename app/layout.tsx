@@ -12,12 +12,12 @@ const comfortaa = Comfortaa({
 export const metadata: Metadata = {
   title: {
     template: '%s | Creepalorian',
-    default: 'Creepalorian | Young Artist in Singapore',
+    default: 'Creepalorian | Artist in Singapore',
   },
-  description: 'Portfolio of AD (Creepalorian), a young left-handed artist from Singapore specializing in digital art, anime-inspired works, and sketches.',
-  keywords: ['Creepalorian', 'Singapore Artist', 'Young Artist', 'Digital Art', 'Anime Art', 'Left-handed artist', 'Singapore', 'Speedcubing'],
+  description: 'Portfolio of AD (Creepalorian), a left-handed artist from Singapore specializing in digital art, anime-inspired works, and sketches.',
+  keywords: ['Creepalorian', 'Singapore Artist', 'Digital Art', 'Anime Art', 'Left-handed artist', 'Singapore', 'Speedcubing'],
   openGraph: {
-    title: 'Creepalorian | Young Artist in Singapore',
+    title: 'Creepalorian | Artist in Singapore',
     description: 'Explore the digital art portfolio of AD (Creepalorian).',
     url: 'https://creepalorian.vercel.app', // Update if custom domain
     siteName: 'Creepalorian Art',
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Creepalorian | Young Artist in Singapore',
+    title: 'Creepalorian | Artist in Singapore',
     description: 'Explore the digital art portfolio of AD (Creepalorian).',
   },
   robots: {

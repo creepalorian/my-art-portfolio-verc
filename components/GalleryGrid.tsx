@@ -65,7 +65,11 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
           className="lightbox"
           onClick={() => setSelectedArtwork(null)}
         >
-          <button className="nav-btn prev" onClick={showPrev}>‹</button>
+          <button className="nav-btn prev" onClick={showPrev} aria-label="Previous">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
 
           <div className="lightbox-content" onClick={e => e.stopPropagation()}>
             <button className="close-btn" onClick={() => setSelectedArtwork(null)}>×</button>
@@ -77,7 +81,11 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
             </div>
           </div>
 
-          <button className="nav-btn next" onClick={showNext}>›</button>
+          <button className="nav-btn next" onClick={showNext} aria-label="Next">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
         </div>
       )}
 
@@ -208,23 +216,50 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
           background: none;
           border: none;
           color: rgba(255,255,255,0.7);
-          font-size: 4rem;
           cursor: pointer;
           padding: 1rem;
-          transition: color 0.2s;
+          transition: all 0.2s;
           user-select: none;
           z-index: 1001;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .nav-btn svg {
+          width: 40px;
+          height: 40px;
         }
         
         .nav-btn:hover {
           color: white;
+          transform: scale(1.1);
         }
 
         /* Mobile adjustments for nav */
         @media (max-width: 768px) {
             .lightbox { padding: 0.5rem; }
             .lightbox-content { margin: 0; grid-template-columns: 1fr; }
-            .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); font-size: 3rem; background: rgba(0,0,0,0.3); border-radius: 50%; width: 50px; height: 50px; display: flex; alignItems: center; justifyContent: center; padding: 0; }
+            
+            .nav-btn { 
+                position: absolute; 
+                top: 50%; 
+                transform: translateY(-50%); 
+                background: rgba(0,0,0,0.5); 
+                border-radius: 50%; 
+                width: 44px; 
+                height: 44px; 
+                padding: 0;
+                backdrop-filter: blur(4px);
+            }
+            .nav-btn svg {
+                width: 24px;
+                height: 24px;
+            }
+            .nav-btn:hover {
+                background: rgba(0,0,0,0.7);
+                transform: translateY(-50%) scale(1.05);
+            }
             .nav-btn.prev { left: 10px; }
             .nav-btn.next { right: 10px; }
         }

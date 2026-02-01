@@ -2,24 +2,28 @@ export default function AboutPage() {
     return (
         <main>
             <section style={{ maxWidth: '800px' }}>
-                <p style={{ opacity: 0.8, lineHeight: '1.8' }}>
-                    Hello! I am a digital artist focused on creating immersive visual experiences.
-                    My work bridges the gap between traditional techniques and modern technology.
+                <p style={{ lineHeight: '1.8', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
+                    AD is a left-handed artist. He is 11 years old and lives in Singapore. His artworks are inspired by the content he consumes and the visual narratives he gets to explore through books, games, films, and anime.
+                </p>
+                <p style={{ lineHeight: '1.8', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
+                    P.S: He also enjoys speedcubing
+                </p>
+                <p style={{ lineHeight: '1.8', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
+                    This portfolio serves as a live catalog of his ongoing exploration with art.
                 </p>
                 <p style={{ marginTop: 'var(--spacing-sm)', opacity: 0.8, lineHeight: '1.8' }}>
                     This portfolio serves as a catalog of my ongoing exploration into generative art,
                     3D sculpting, and oil painting.
                 </p>
-                <p style={{ marginTop: 'var(--spacing-sm)', opacity: 0.8, lineHeight: '1.8' }}>
-                    For inquiries, please reach out via email.
-                </p>
+                For inquiries, please reach out via email.
+            </p>
 
-                <div style={{ marginTop: 'var(--spacing-md)' }}>
-                    <a href="mailto:hello@example.com" className="btn btn-primary">
-                        Contact Me
-                    </a>
-                </div>
-            </section>
-        </main>
+            <div style={{ marginTop: 'var(--spacing-md)' }}>
+                <a href="mailto:hello@example.com" className="btn btn-primary">
+                    Contact Me
+                </a>
+            </div>
+        </section>
+        </main >
     );
 }

@@ -14,6 +14,7 @@ export default function AboutPage() {
                 <p style={{ lineHeight: '1.8', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
                     For inquiries, please reach out via email.
                 </p>
+
             </section>
         </main >
     );

@@ -112,7 +112,7 @@ export default function ImageCarousel({ images = [] }: { images?: CarouselImage[
                             textShadow: '0 2px 4px rgba(0,0,0,0.5)',
                             zIndex: 10
                         }}>
-                            <h2 style={{ fontSize: '2rem', margin: 0 }}>{img.alt}</h2>
+                            <h2 style={{ fontSize: '1rem', margin: 0, fontWeight: 500, letterSpacing: '0.05em' }}>{img.alt}</h2>
                         </div>
                     </div>
                 ))}

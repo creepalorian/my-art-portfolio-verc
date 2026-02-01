@@ -96,6 +96,35 @@ export default function AdminPage() {
         setEditingArtwork(null);
     }
 
+    async function handleFeaturedToggle(artwork: Artwork, isFeatured: boolean) {
+        if (isFeatured) {
+            const currentFeaturedCount = artworks.filter(a => a.featured).length;
+            if (currentFeaturedCount >= 5) {
+                alert("You can only feature up to 5 artworks on the homepage.");
+                return;
+            }
+        }
+
+        // Optimistic update
+        const updatedArtworks = artworks.map(a =>
+            a.id === artwork.id ? { ...a, featured: isFeatured } : a
+        );
+        setArtworks(updatedArtworks);
+
+        try {
+            await fetch(`/api/artworks/${artwork.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ featured: isFeatured })
+            });
+            // No need to refresh, optimistic update handles it
+        } catch (error) {
+            console.error('Failed to update featured status', error);
+            // Revert
+            fetchArtworks();
+        }
+    }
+
     // Reordering Logic
     async function moveItem(index: number, direction: 'up' | 'down') {
         const newArtworks = [...artworks];
@@ -305,6 +334,15 @@ export default function AdminPage() {
                                 <p style={{ fontSize: '0.9rem', opacity: 0.6 }}>
                                     {artwork.date} • {artwork.dimensions}
                                 </p>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem', cursor: 'pointer' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={!!artwork.featured}
+                                        onChange={(e) => handleFeaturedToggle(artwork, e.target.checked)}
+                                        style={{ accentColor: 'var(--primary)' }}
+                                    />
+                                    <span style={{ fontSize: '0.9rem' }}>Featured (Home)</span>
+                                </label>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                                 <button

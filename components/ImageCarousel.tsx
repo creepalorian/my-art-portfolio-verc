@@ -3,13 +3,20 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 
-const images = [
-    "/manga-bg.png",
-    "/manga-bg-2.png",
-    "/manga-bg-3.png",
-];
 
-export default function ImageCarousel() {
+interface CarouselImage {
+    src: string;
+    alt: string;
+}
+
+export default function ImageCarousel({ images = [] }: { images?: CarouselImage[] }) {
+    // Fallback if no images provided
+    const displayImages = images.length > 0 ? images : [
+        { src: "/manga-bg.png", alt: "Background 1" },
+        { src: "/manga-bg-2.png", alt: "Background 2" },
+        { src: "/manga-bg-3.png", alt: "Background 3" },
+    ];
+
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(true);
     const [progress, setProgress] = useState(0);
@@ -34,7 +41,7 @@ export default function ImageCarousel() {
 
         // Image transition
         intervalRef.current = setInterval(() => {
-            setCurrentIndex((prev) => (prev + 1) % images.length);
+            setCurrentIndex((prev) => (prev + 1) % displayImages.length);
             setProgress(0);
         }, 5000);
 
@@ -42,15 +49,15 @@ export default function ImageCarousel() {
             if (intervalRef.current) clearInterval(intervalRef.current);
             if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
         };
-    }, [isPlaying, currentIndex]);
+    }, [isPlaying, currentIndex, displayImages.length]);
 
     const goToPrevious = () => {
-        setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+        setCurrentIndex((prev) => (prev - 1 + displayImages.length) % displayImages.length);
         setProgress(0);
     };
 
     const goToNext = () => {
-        setCurrentIndex((prev) => (prev + 1) % images.length);
+        setCurrentIndex((prev) => (prev + 1) % displayImages.length);
         setProgress(0);
     };
 
@@ -77,7 +84,7 @@ export default function ImageCarousel() {
                     height: "100%",
                 }}
             >
-                {images.map((src, index) => (
+                {displayImages.map((img, index) => (
                     <div
                         key={index}
                         style={{
@@ -87,13 +94,26 @@ export default function ImageCarousel() {
                         }}
                     >
                         <Image
-                            src={src}
-                            alt={`Carousel Image ${index + 1}`}
+                            src={img.src}
+                            alt={img.alt}
                             fill
                             style={{ objectFit: "cover" }}
                             priority={index === 0}
                             sizes="100vw"
                         />
+                        {/* Caption Overlay */}
+                        <div style={{
+                            position: 'absolute',
+                            bottom: '120px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            color: 'white',
+                            textAlign: 'center',
+                            textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                            zIndex: 10
+                        }}>
+                            <h2 style={{ fontSize: '2rem', margin: 0 }}>{img.alt}</h2>
+                        </div>
                     </div>
                 ))}
             </div>
@@ -197,7 +217,7 @@ export default function ImageCarousel() {
                         gap: "10px",
                     }}
                 >
-                    {images.map((_, index) => (
+                    {displayImages.map((_, index) => (
                         <button
                             key={index}
                             onClick={() => {

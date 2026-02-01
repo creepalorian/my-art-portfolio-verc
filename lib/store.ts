@@ -21,6 +21,7 @@ export interface Artwork {
     date: string;
     dimensions: string;
     createdAt: number;
+    featured?: boolean;
 }
 
 export async function getDebugInfo() {

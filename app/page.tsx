@@ -1,9 +1,17 @@
 import ImageCarousel from "@/components/ImageCarousel";
+import { getArtworks } from "@/lib/store";
 
-export default function LandingPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function LandingPage() {
+    const artworks = await getArtworks();
+    const featuredArtworks = artworks
+        .filter(a => a.featured)
+        .map(a => ({ src: a.imageUrl, alt: a.title }));
+
     return (
         <main className="landing-page">
-            <ImageCarousel />
+            <ImageCarousel images={featuredArtworks} />
         </main>
     );
 }

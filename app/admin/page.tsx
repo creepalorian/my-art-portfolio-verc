@@ -5,6 +5,12 @@ import { useRouter } from 'next/navigation';
 import ArtworkForm from '@/components/ArtworkForm';
 import { Artwork } from '@/lib/store';
 
+// Helper to extract unique mediums
+const getMediums = (items: Artwork[]) => {
+    const mediums = new Set(items.map(i => i.medium).filter(Boolean));
+    return Array.from(mediums).sort();
+};
+
 export default function AdminPage() {
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -12,6 +18,11 @@ export default function AdminPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [artworks, setArtworks] = useState<Artwork[]>([]);
+
+    // Filtering & Sorting State
+    const [filterTitle, setFilterTitle] = useState('');
+    const [filterMedium, setFilterMedium] = useState('');
+    const [sortBy, setSortBy] = useState('manual'); // 'manual', 'date-new', 'date-old', 'title'
 
     useEffect(() => {
         checkAuth();
@@ -68,83 +79,99 @@ export default function AdminPage() {
 
     async function handleDelete(id: string) {
         if (!confirm('Delete this artwork?')) return;
-
         await fetch(`/api/artworks/${id}`, { method: 'DELETE' });
         fetchArtworks();
     }
 
-    if (isLoading) {
-        return (
-            <main style={{ padding: '2rem', textAlign: 'center' }}>
-                <p>Loading...</p>
-            </main>
-        );
+    // Reordering Logic
+    async function moveItem(index: number, direction: 'up' | 'down') {
+        const newArtworks = [...artworks];
+        if (direction === 'up' && index > 0) {
+            [newArtworks[index], newArtworks[index - 1]] = [newArtworks[index - 1], newArtworks[index]];
+        } else if (direction === 'down' && index < newArtworks.length - 1) {
+            [newArtworks[index], newArtworks[index + 1]] = [newArtworks[index + 1], newArtworks[index]];
+        } else {
+            return;
+        }
+
+        // Optimistic update
+        setArtworks(newArtworks);
+
+        // API Call
+        try {
+            await fetch('/api/artworks/reorder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ artworkIds: newArtworks.map(a => a.id) })
+            });
+            router.refresh();
+        } catch (error) {
+            console.error('Failed to save order', error);
+            // Revert on error could be implemented here
+        }
     }
 
-    if (!isAuthenticated) {
-        return (
-            <main style={{
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '2rem'
+    // Derived State for Display
+    const filteredArtworks = artworks.filter(artwork => {
+        const matchesTitle = artwork.title.toLowerCase().includes(filterTitle.toLowerCase());
+        const matchesMedium = filterMedium ? artwork.medium === filterMedium : true;
+        return matchesTitle && matchesMedium;
+    }).sort((a, b) => {
+        if (sortBy === 'date-new') return new Date(b.date).getTime() - new Date(a.date).getTime();
+        if (sortBy === 'date-old') return new Date(a.date).getTime() - new Date(b.date).getTime();
+        if (sortBy === 'title') return a.title.localeCompare(b.title);
+        return 0; // 'manual' relies on array order
+    });
+
+    const mediums = getMediums(artworks);
+
+    // Render Login helpers... (omitted for brevity, using same logic as before)
+    if (isLoading) return <main style={{ padding: '2rem', textAlign: 'center' }}><p>Loading...</p></main>;
+    if (!isAuthenticated) return (
+        <main style={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '2rem'
+        }}>
+            <form onSubmit={handleLogin} style={{
+                maxWidth: '400px',
+                width: '100%',
+                background: 'var(--surface)',
+                padding: '2rem',
+                borderRadius: '8px',
+                fontFamily: 'var(--font-comfortaa)'
             }}>
-                <form onSubmit={handleLogin} style={{
-                    maxWidth: '400px',
-                    width: '100%',
-                    background: 'var(--surface)',
-                    padding: '2rem',
-                    borderRadius: '8px',
-                    fontFamily: 'var(--font-comfortaa)'
-                }}>
-                    <h1 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>Admin Login</h1>
-
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter password"
-                        style={{
-                            width: '100%',
-                            padding: '0.75rem',
-                            marginBottom: '1rem',
-                            background: 'var(--background)',
-                            border: '1px solid var(--border)',
-                            borderRadius: '4px',
-                            color: 'var(--foreground)',
-                            fontSize: '1rem',
-                            fontFamily: 'var(--font-comfortaa)'
-                        }}
-                        autoFocus
-                    />
-
-                    {error && (
-                        <p style={{ color: '#ff6b6b', marginBottom: '1rem', fontSize: '0.9rem' }}>
-                            {error}
-                        </p>
-                    )}
-
-                    <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-                        Login
-                    </button>
-                </form>
-            </main>
-        );
-    }
+                <h1 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>Admin Login</h1>
+                <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter password"
+                    style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        marginBottom: '1rem',
+                        background: 'var(--background)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '4px',
+                        color: 'var(--foreground)',
+                        fontSize: '1rem',
+                        fontFamily: 'var(--font-comfortaa)'
+                    }}
+                    autoFocus
+                />
+                {error && <p style={{ color: '#ff6b6b', marginBottom: '1rem', fontSize: '0.9rem' }}>{error}</p>}
+                <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>Login</button>
+            </form>
+        </main>
+    );
 
     return (
         <main style={{ fontFamily: 'var(--font-comfortaa)' }}>
-            <div style={{
-                display: 'flex',
-                justifyContent: 'flex-end', // Moved logout to right, removed "Admin Panel" header
-                alignItems: 'center',
-                marginBottom: '2rem',
-                paddingTop: '1rem'
-            }}>
-                <button onClick={handleLogout} className="btn btn-outline" style={{ fontSize: '0.9rem' }}>
-                    Logout
-                </button>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '1rem', marginBottom: '2rem' }}>
+                <button onClick={handleLogout} className="btn btn-outline" style={{ fontSize: '0.9rem' }}>Logout</button>
             </div>
 
             <section style={{ marginBottom: '4rem', maxWidth: '800px', margin: '0 auto 4rem' }}>
@@ -152,9 +179,60 @@ export default function AdminPage() {
             </section>
 
             <section style={{ maxWidth: '800px', margin: '0 auto' }}>
-                <h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: 700 }}>Existing Artworks ({artworks.length})</h2>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Existing Artworks ({filteredArtworks.length})</h2>
+
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <input
+                            placeholder="Search title..."
+                            value={filterTitle}
+                            onChange={(e) => setFilterTitle(e.target.value)}
+                            style={{
+                                padding: '0.5rem',
+                                borderRadius: '4px',
+                                border: '1px solid var(--border)',
+                                background: 'var(--background)',
+                                color: 'var(--foreground)',
+                                fontFamily: 'inherit'
+                            }}
+                        />
+                        <select
+                            value={filterMedium}
+                            onChange={(e) => setFilterMedium(e.target.value)}
+                            style={{
+                                padding: '0.5rem',
+                                borderRadius: '4px',
+                                border: '1px solid var(--border)',
+                                background: 'var(--background)',
+                                color: 'var(--foreground)',
+                                fontFamily: 'inherit'
+                            }}
+                        >
+                            <option value="">All Mediums</option>
+                            {mediums.map(m => <option key={m} value={m}>{m}</option>)}
+                        </select>
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            style={{
+                                padding: '0.5rem',
+                                borderRadius: '4px',
+                                border: '1px solid var(--border)',
+                                background: 'var(--background)',
+                                color: 'var(--foreground)',
+                                fontFamily: 'inherit'
+                            }}
+                        >
+                            <option value="manual">Manual Order</option>
+                            <option value="date-new">Date (Newest)</option>
+                            <option value="date-old">Date (Oldest)</option>
+                            <option value="title">Title (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div style={{ display: 'grid', gap: '1rem' }}>
-                    {artworks.map((artwork) => (
+                    {filteredArtworks.map((artwork, index) => (
                         <div
                             key={artwork.id}
                             style={{
@@ -167,12 +245,37 @@ export default function AdminPage() {
                                 border: '1px solid var(--border)'
                             }}
                         >
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                <button
+                                    onClick={() => moveItem(index, 'up')}
+                                    disabled={index === 0 || sortBy !== 'manual'}
+                                    style={{
+                                        opacity: (index === 0 || sortBy !== 'manual') ? 0.3 : 1,
+                                        cursor: (index === 0 || sortBy !== 'manual') ? 'default' : 'pointer',
+                                        background: 'none', border: 'none', color: 'var(--foreground)', fontSize: '1.2rem'
+                                    }}
+                                >
+                                    ↑
+                                </button>
+                                <button
+                                    onClick={() => moveItem(index, 'down')}
+                                    disabled={index === artworks.length - 1 || sortBy !== 'manual'}
+                                    style={{
+                                        opacity: (index === artworks.length - 1 || sortBy !== 'manual') ? 0.3 : 1,
+                                        cursor: (index === artworks.length - 1 || sortBy !== 'manual') ? 'default' : 'pointer',
+                                        background: 'none', border: 'none', color: 'var(--foreground)', fontSize: '1.2rem'
+                                    }}
+                                >
+                                    ↓
+                                </button>
+                            </div>
+
                             <img
                                 src={artwork.imageUrl}
                                 alt={artwork.title}
                                 style={{
-                                    width: '120px',
-                                    height: '120px',
+                                    width: '100px',
+                                    height: '100px',
                                     objectFit: 'cover',
                                     borderRadius: '4px'
                                 }}
@@ -200,6 +303,9 @@ export default function AdminPage() {
                             </button>
                         </div>
                     ))}
+                    {filteredArtworks.length === 0 && (
+                        <p style={{ textAlign: 'center', opacity: 0.5, padding: '2rem' }}>No artworks matching criteria.</p>
+                    )}
                 </div>
             </section>
         </main>

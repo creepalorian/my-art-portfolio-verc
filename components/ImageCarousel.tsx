@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 
 const images = [
     "/manga-bg.png",
@@ -20,12 +21,8 @@ export default function ImageCarousel() {
         if (!isPlaying) {
             if (intervalRef.current) clearInterval(intervalRef.current);
             if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
-            setProgress(0);
             return;
         }
-
-        // Reset progress
-        setProgress(0);
 
         // Progress bar update (60fps for smooth animation)
         progressIntervalRef.current = setInterval(() => {
@@ -58,6 +55,7 @@ export default function ImageCarousel() {
     };
 
     const togglePlay = () => {
+        setProgress(0);
         setIsPlaying(!isPlaying);
     };
 
@@ -85,12 +83,18 @@ export default function ImageCarousel() {
                         style={{
                             minWidth: "100%",
                             height: "100%",
-                            backgroundImage: `url(${src})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                            backgroundRepeat: "no-repeat",
+                            position: "relative",
                         }}
-                    />
+                    >
+                        <Image
+                            src={src}
+                            alt={`Carousel Image ${index + 1}`}
+                            fill
+                            style={{ objectFit: "cover" }}
+                            priority={index === 0}
+                            sizes="100vw"
+                        />
+                    </div>
                 ))}
             </div>
 

@@ -6,6 +6,34 @@ import { useState } from 'react';
 export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedArtwork) return;
+      if (e.key === 'Escape') setSelectedArtwork(null);
+      if (e.key === 'ArrowLeft') showPrev();
+      if (e.key === 'ArrowRight') showNext();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedArtwork, artworks]);
+
+  const showNext = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!selectedArtwork) return;
+    const currentIndex = artworks.findIndex(a => a.id === selectedArtwork.id);
+    const nextIndex = (currentIndex + 1) % artworks.length;
+    setSelectedArtwork(artworks[nextIndex]);
+  };
+
+  const showPrev = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!selectedArtwork) return;
+    const currentIndex = artworks.findIndex(a => a.id === selectedArtwork.id);
+    const prevIndex = (currentIndex - 1 + artworks.length) % artworks.length;
+    setSelectedArtwork(artworks[prevIndex]);
+  };
+
   if (artworks.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '4rem 0', color: '#888' }}>
@@ -37,6 +65,8 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
           className="lightbox"
           onClick={() => setSelectedArtwork(null)}
         >
+          <button className="nav-btn prev" onClick={showPrev}>‹</button>
+
           <div className="lightbox-content" onClick={e => e.stopPropagation()}>
             <button className="close-btn" onClick={() => setSelectedArtwork(null)}>×</button>
             <img src={selectedArtwork.imageUrl} alt={selectedArtwork.title} />
@@ -46,6 +76,8 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
               <p className="desc">{selectedArtwork.description}</p>
             </div>
           </div>
+
+          <button className="nav-btn next" onClick={showNext}>›</button>
         </div>
       )}
 
@@ -113,7 +145,7 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
         .lightbox {
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;
-          background: rgba(0,0,0,0.9);
+          background: rgba(0,0,0,0.95);
           z-index: 1000;
           display: flex;
           align-items: center;
@@ -132,6 +164,7 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
           position: relative;
           display: grid;
           grid-template-columns: 1fr;
+          margin: 0 3rem; /* Space for arrows */
         }
         
         @media(min-width: 768px) {
@@ -169,6 +202,31 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
           cursor: pointer;
           z-index: 10;
           line-height: 1;
+        }
+
+        .nav-btn {
+          background: none;
+          border: none;
+          color: rgba(255,255,255,0.7);
+          font-size: 4rem;
+          cursor: pointer;
+          padding: 1rem;
+          transition: color 0.2s;
+          user-select: none;
+          z-index: 1001;
+        }
+        
+        .nav-btn:hover {
+          color: white;
+        }
+
+        /* Mobile adjustments for nav */
+        @media (max-width: 768px) {
+            .lightbox { padding: 0.5rem; }
+            .lightbox-content { margin: 0; grid-template-columns: 1fr; }
+            .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); font-size: 3rem; background: rgba(0,0,0,0.3); border-radius: 50%; width: 50px; height: 50px; display: flex; alignItems: center; justifyContent: center; padding: 0; }
+            .nav-btn.prev { left: 10px; }
+            .nav-btn.next { right: 10px; }
         }
         
         .meta {

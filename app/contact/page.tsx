@@ -6,7 +6,7 @@ export default function ContactPage() {
                     For inquiries, commissions, or collaborations, please reach out.
                 </p>
                 <div style={{ marginTop: 'var(--spacing-md)' }}>
-                    <a href="mailto:hello@example.com" className="btn btn-primary">
+                    <a href="mailto:creepalorian@gmail.com" className="btn btn-primary">
                         Email Me
                     </a>
                 </div>

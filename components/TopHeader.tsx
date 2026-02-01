@@ -29,11 +29,11 @@ export default function TopHeader() {
                     color: "black",
                 }}
             >
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                     <img
                         src="/header-logo.png"
                         alt="Logo"
-                        style={{ height: "1.8rem", width: "auto" }}
+                        style={{ height: "2.2rem", width: "auto", marginTop: "2px" }}
                     />
                     <span>AD</span>
                 </div>

@@ -1,6 +1,9 @@
 import fs from 'fs/promises';
 import path from 'path';
 
+// Ensure we use a writable path in production/containerized environments if possible,
+// but for this standard Next.js setup, process.cwd() is standard.
+// Note: In Vercel/Serverless, this file is ephemeral and will reset.
 const DATA_FILE = path.join(process.cwd(), 'data.json');
 
 export interface Artwork {

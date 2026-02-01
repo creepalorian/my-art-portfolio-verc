@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getArtworks, addArtwork } from '@/lib/store';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     const artworks = await getArtworks();
     return NextResponse.json(artworks);

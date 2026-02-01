@@ -97,6 +97,21 @@ export async function addArtwork(artwork: Omit<Artwork, 'createdAt'>): Promise<A
     return newArtwork;
 }
 
+export async function updateArtwork(id: string, updates: Partial<Artwork>): Promise<Artwork[]> {
+    const artworks = await getArtworks();
+    const index = artworks.findIndex(a => a.id === id);
+
+    if (index === -1) {
+        throw new Error('Artwork not found');
+    }
+
+    // Merge updates
+    artworks[index] = { ...artworks[index], ...updates };
+
+    await saveArtworks(artworks);
+    return artworks;
+}
+
 export async function deleteArtwork(id: string): Promise<void> {
     const artworks = await getArtworks();
     const filtered = artworks.filter(a => a.id !== id);

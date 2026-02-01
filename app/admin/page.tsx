@@ -24,6 +24,8 @@ export default function AdminPage() {
     const [filterMedium, setFilterMedium] = useState('');
     const [sortBy, setSortBy] = useState('manual'); // 'manual', 'date-new', 'date-old', 'title'
 
+    const [editingArtwork, setEditingArtwork] = useState<Artwork | null>(null);
+
     useEffect(() => {
         checkAuth();
         if (isAuthenticated) {
@@ -81,6 +83,16 @@ export default function AdminPage() {
         if (!confirm('Delete this artwork?')) return;
         await fetch(`/api/artworks/${id}`, { method: 'DELETE' });
         fetchArtworks();
+    }
+
+    function startEditing(artwork: Artwork) {
+        setEditingArtwork(artwork);
+        // Scroll to top to see form
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelEditing() {
+        setEditingArtwork(null);
     }
 
     // Reordering Logic
@@ -175,7 +187,11 @@ export default function AdminPage() {
             </div>
 
             <section style={{ marginBottom: '4rem', maxWidth: '800px', margin: '0 auto 4rem' }}>
-                <ArtworkForm onSuccess={fetchArtworks} />
+                <ArtworkForm
+                    onSuccess={fetchArtworks}
+                    editArtwork={editingArtwork}
+                    onCancelEdit={cancelEditing}
+                />
             </section>
 
             <section style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -289,18 +305,30 @@ export default function AdminPage() {
                                     {artwork.date} • {artwork.dimensions}
                                 </p>
                             </div>
-                            <button
-                                onClick={() => handleDelete(artwork.id)}
-                                className="btn btn-outline"
-                                style={{
-                                    color: '#ff6b6b',
-                                    borderColor: '#ff6b6b',
-                                    padding: '0.5rem 1rem',
-                                    fontSize: '0.9rem'
-                                }}
-                            >
-                                Delete
-                            </button>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <button
+                                    onClick={() => startEditing(artwork)}
+                                    className="btn btn-outline"
+                                    style={{
+                                        padding: '0.5rem 1rem',
+                                        fontSize: '0.9rem'
+                                    }}
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(artwork.id)}
+                                    className="btn btn-outline"
+                                    style={{
+                                        color: '#ff6b6b',
+                                        borderColor: '#ff6b6b',
+                                        padding: '0.5rem 1rem',
+                                        fontSize: '0.9rem'
+                                    }}
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     ))}
                     {filteredArtworks.length === 0 && (

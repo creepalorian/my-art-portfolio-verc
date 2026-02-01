@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Artwork } from '@/lib/store';
 
 const MEDIUM_OPTIONS = [
     "Oil on Canvas",
@@ -15,8 +16,13 @@ const MEDIUM_OPTIONS = [
     "Other"
 ];
 
-export default function ArtworkForm({ onSuccess }: { onSuccess: () => void }) {
-    // Dimensions state separated
+interface ArtworkFormProps {
+    onSuccess: () => void;
+    editArtwork?: Artwork | null;
+    onCancelEdit?: () => void;
+}
+
+export default function ArtworkForm({ onSuccess, editArtwork, onCancelEdit }: ArtworkFormProps) {
     const [dimensions, setDimensions] = useState({ height: '', width: '' });
 
     const [formData, setFormData] = useState({
@@ -30,16 +36,42 @@ export default function ArtworkForm({ onSuccess }: { onSuccess: () => void }) {
     const [uploadProgress, setUploadProgress] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
 
+    // Populate form when editing
+    useEffect(() => {
+        if (editArtwork) {
+            setFormData({
+                title: editArtwork.title,
+                description: editArtwork.description,
+                medium: editArtwork.medium,
+                date: editArtwork.date,
+            });
+
+            // Parse dimensions "24 x 36 inches"
+            const dimMatch = editArtwork.dimensions?.match(/([\d.]+)\s*x\s*([\d.]+)/);
+            if (dimMatch) {
+                setDimensions({ height: dimMatch[1], width: dimMatch[2] });
+            } else {
+                setDimensions({ height: '', width: '' });
+            }
+        } else {
+            // Reset form if editArtwork is cleared
+            setFormData({ title: '', description: '', medium: '', date: '' });
+            setDimensions({ height: '', width: '' });
+        }
+    }, [editArtwork]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setUploadProgress('Uploading image...');
+        setUploadProgress('Processing...');
         setSuccessMessage('');
 
         try {
-            // Upload image first
-            let imageUrl = '';
+            let imageUrl = editArtwork?.imageUrl || '';
+
+            // Upload new image if selected
             if (imageFile) {
+                setUploadProgress('Uploading new image...');
                 const uploadFormData = new FormData();
                 uploadFormData.append('file', imageFile);
 
@@ -48,53 +80,60 @@ export default function ArtworkForm({ onSuccess }: { onSuccess: () => void }) {
                     body: uploadFormData,
                 });
 
-                if (!uploadRes.ok) {
-                    throw new Error('Image upload failed');
-                }
-
+                if (!uploadRes.ok) throw new Error('Image upload failed');
                 const uploadData = await uploadRes.json();
                 imageUrl = uploadData.url;
             }
 
-            setUploadProgress('Saving artwork...');
-
-            // Combine dimensions
+            setUploadProgress('Saving details...');
             const dimensionString = `${dimensions.height} x ${dimensions.width} inches`;
 
-            // Create artwork
-            const res = await fetch('/api/artworks', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    ...formData,
-                    dimensions: dimensionString,
-                    category: 'Artwork', // Default category since field is removed
-                    imageUrl,
-                    id: Date.now().toString(),
-                }),
+            const payload = {
+                ...formData,
+                dimensions: dimensionString,
+                category: 'Artwork',
+                imageUrl,
+            };
+
+            const url = editArtwork
+                ? `/api/artworks/${editArtwork.id}`
+                : '/api/artworks';
+
+            const method = editArtwork ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
             });
 
             if (res.ok) {
-                setFormData({
-                    title: '',
-                    description: '',
-                    medium: '',
-                    date: '',
-                });
-                setDimensions({ height: '', width: '' });
+                // If adding new, clear form. If editing, keep as is or user can cancel.
+                if (!editArtwork) {
+                    setFormData({ title: '', description: '', medium: '', date: '' });
+                    setDimensions({ height: '', width: '' });
+                }
+
                 setImageFile(null);
-                onSuccess();
                 setUploadProgress('');
-                setSuccessMessage('✨ Artwork added successfully!');
-                setTimeout(() => setSuccessMessage(''), 5000);
+                setSuccessMessage(editArtwork ? '✨ Artwork updated!' : '✨ Artwork added!');
+
+                onSuccess(); // Refresh parent list
+
+                if (editArtwork && onCancelEdit) {
+                    setTimeout(() => {
+                        setSuccessMessage('');
+                        onCancelEdit(); // Exit edit mode
+                    }, 1000);
+                } else {
+                    setTimeout(() => setSuccessMessage(''), 3000);
+                }
             } else {
-                alert('Failed to add artwork');
+                alert('Failed to save artwork');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error adding artwork');
+            alert('Error saving artwork');
         } finally {
             setLoading(false);
             setUploadProgress('');
@@ -102,27 +141,18 @@ export default function ArtworkForm({ onSuccess }: { onSuccess: () => void }) {
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value,
-        });
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleDimensionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // Only allow numbers and decimals
         const value = e.target.value;
         if (value === '' || /^\d*\.?\d*$/.test(value)) {
-            setDimensions({
-                ...dimensions,
-                [e.target.name]: value
-            });
+            setDimensions({ ...dimensions, [e.target.name]: value });
         }
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setImageFile(e.target.files[0]);
-        }
+        if (e.target.files && e.target.files[0]) setImageFile(e.target.files[0]);
     };
 
     const inputStyle = {
@@ -134,7 +164,7 @@ export default function ArtworkForm({ onSuccess }: { onSuccess: () => void }) {
         color: 'var(--foreground)',
         marginBottom: '1rem',
         fontSize: '1rem',
-        fontFamily: 'var(--font-comfortaa)', // Consistent font
+        fontFamily: 'var(--font-comfortaa)',
     };
 
     return (
@@ -145,17 +175,36 @@ export default function ArtworkForm({ onSuccess }: { onSuccess: () => void }) {
             border: '1px solid var(--border)',
             fontFamily: 'var(--font-comfortaa)'
         }}>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', fontWeight: 700 }}>Add New Artwork</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>
+                    {editArtwork ? 'Edit Artwork' : 'Add New Artwork'}
+                </h2>
+                {editArtwork && onCancelEdit && (
+                    <button
+                        type="button"
+                        onClick={onCancelEdit}
+                        className="btn btn-outline"
+                        style={{ fontSize: '0.9rem' }}
+                    >
+                        Cancel Edit
+                    </button>
+                )}
+            </div>
 
             <div style={{ marginBottom: '1rem' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                    Image *
+                    Image {editArtwork ? '(Keep current or upload new)' : '*'}
                 </label>
+                {editArtwork && (
+                    <div style={{ marginBottom: '0.5rem' }}>
+                        <img src={editArtwork.imageUrl} alt="Current" style={{ height: '60px', borderRadius: '4px' }} />
+                    </div>
+                )}
                 <input
                     type="file"
                     accept="image/*"
                     onChange={handleFileChange}
-                    required
+                    required={!editArtwork}
                     style={inputStyle}
                 />
                 {imageFile && (
@@ -165,111 +214,38 @@ export default function ArtworkForm({ onSuccess }: { onSuccess: () => void }) {
                 )}
             </div>
 
-            <input
-                name="title"
-                placeholder="Title *"
-                value={formData.title}
-                onChange={handleChange}
-                required
-                style={inputStyle}
-            />
+            <input name="title" placeholder="Title *" value={formData.title} onChange={handleChange} required style={inputStyle} />
 
             <div style={{ marginBottom: '1rem' }}>
-                <select
-                    name="medium"
-                    value={formData.medium}
-                    onChange={handleChange}
-                    required
-                    style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
-                >
+                <select name="medium" value={formData.medium} onChange={handleChange} required style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}>
                     <option value="" disabled>Select Medium *</option>
-                    {MEDIUM_OPTIONS.map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                    ))}
+                    {MEDIUM_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
             </div>
 
             <div style={{ marginBottom: '1rem' }}>
-                <input
-                    name="date"
-                    type="date"
-                    placeholder="Date *"
-                    value={formData.date}
-                    onChange={handleChange}
-                    required
-                    style={{
-                        ...inputStyle,
-                        colorScheme: 'dark' // Forces calendar icon to be white in dark mode
-                    }}
-                />
+                <input name="date" type="date" placeholder="Date *" value={formData.date} onChange={handleChange} required style={{ ...inputStyle, colorScheme: 'dark' }} />
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
                 <div style={{ flex: 1 }}>
                     <label style={{ fontSize: '0.85rem', opacity: 0.8, display: 'block', marginBottom: '4px' }}>Height (in)</label>
-                    <input
-                        name="height"
-                        placeholder="0"
-                        value={dimensions.height}
-                        onChange={handleDimensionChange}
-                        required
-                        style={{ ...inputStyle, marginBottom: 0 }}
-                        inputMode="decimal"
-                    />
+                    <input name="height" placeholder="0" value={dimensions.height} onChange={handleDimensionChange} required style={{ ...inputStyle, marginBottom: 0 }} inputMode="decimal" />
                 </div>
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center', paddingTop: '24px' }}>
-                    <span style={{ fontSize: '1.2rem', opacity: 0.5 }}>×</span>
-                </div>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', paddingTop: '24px' }}><span style={{ fontSize: '1.2rem', opacity: 0.5 }}>×</span></div>
                 <div style={{ flex: 1 }}>
                     <label style={{ fontSize: '0.85rem', opacity: 0.8, display: 'block', marginBottom: '4px' }}>Width (in)</label>
-                    <input
-                        name="width"
-                        placeholder="0"
-                        value={dimensions.width}
-                        onChange={handleDimensionChange}
-                        required
-                        style={{ ...inputStyle, marginBottom: 0 }}
-                        inputMode="decimal"
-                    />
+                    <input name="width" placeholder="0" value={dimensions.width} onChange={handleDimensionChange} required style={{ ...inputStyle, marginBottom: 0 }} inputMode="decimal" />
                 </div>
             </div>
 
-            <textarea
-                name="description"
-                placeholder="Description"
-                value={formData.description}
-                onChange={handleChange}
-                rows={4}
-                style={{ ...inputStyle, resize: 'vertical' }}
-            />
+            <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} rows={4} style={{ ...inputStyle, resize: 'vertical' }} />
 
-            {uploadProgress && (
-                <p style={{ marginBottom: '1rem', fontSize: '0.9rem', opacity: 0.8 }}>
-                    {uploadProgress}
-                </p>
-            )}
+            {uploadProgress && <p style={{ marginBottom: '1rem', fontSize: '0.9rem', opacity: 0.8 }}>{uploadProgress}</p>}
+            {successMessage && <div style={{ marginBottom: '1rem', padding: '0.8rem', background: 'rgba(0, 255, 0, 0.1)', border: '1px solid rgba(0, 255, 0, 0.2)', borderRadius: '4px', color: '#4ade80', fontSize: '0.9rem' }}>{successMessage}</div>}
 
-            {successMessage && (
-                <div style={{
-                    marginBottom: '1rem',
-                    padding: '0.8rem',
-                    background: 'rgba(0, 255, 0, 0.1)',
-                    border: '1px solid rgba(0, 255, 0, 0.2)',
-                    borderRadius: '4px',
-                    color: '#4ade80',
-                    fontSize: '0.9rem'
-                }}>
-                    {successMessage}
-                </div>
-            )}
-
-            <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={loading}
-                style={{ width: '100%', padding: '1rem' }}
-            >
-                {loading ? 'Adding...' : 'Add Artwork'}
+            <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', padding: '1rem' }}>
+                {loading ? 'Saving...' : (editArtwork ? 'Update Artwork' : 'Add Artwork')}
             </button>
         </form>
     );

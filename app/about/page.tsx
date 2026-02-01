@@ -14,7 +14,6 @@ export default function AboutPage() {
                 <p style={{ lineHeight: '1.8', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
                     For inquiries, please reach out via email.
                 </p>
-                For inquiries, please reach out via email.
 
                 <div style={{ marginTop: 'var(--spacing-md)' }}>
                     <a href="mailto:hello@example.com" className="btn btn-primary">

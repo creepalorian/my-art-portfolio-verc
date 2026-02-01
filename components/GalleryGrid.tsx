@@ -4,52 +4,52 @@ import { Artwork } from '@/lib/store';
 import { useState } from 'react';
 
 export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
-    const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
+  const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
 
-    if (artworks.length === 0) {
-        return (
-            <div style={{ textAlign: 'center', padding: '4rem 0', color: '#888' }}>
-                No artworks found.
-            </div>
-        );
-    }
-
+  if (artworks.length === 0) {
     return (
-        <>
-            <div className="masonry-grid">
-                {artworks.map((artwork) => (
-                    <div
-                        key={artwork.id}
-                        className="masonry-item"
-                        onClick={() => setSelectedArtwork(artwork)}
-                    >
-                        <img src={artwork.imageUrl} alt={artwork.title} loading="lazy" />
-                        <div className="overlay">
-                            <h3>{artwork.title}</h3>
-                            <p>{artwork.category}</p>
-                        </div>
-                    </div>
-                ))}
+      <div style={{ textAlign: 'center', padding: '4rem 0', color: '#888' }}>
+        No artworks found.
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="masonry-grid">
+        {artworks.map((artwork) => (
+          <div
+            key={artwork.id}
+            className="masonry-item"
+            onClick={() => setSelectedArtwork(artwork)}
+          >
+            <img src={artwork.imageUrl} alt={artwork.title} loading="lazy" />
+            <div className="overlay">
+              <h3>{artwork.title}</h3>
+              <p>{artwork.category}</p>
             </div>
+          </div>
+        ))}
+      </div>
 
-            {selectedArtwork && (
-                <div
-                    className="lightbox"
-                    onClick={() => setSelectedArtwork(null)}
-                >
-                    <div className="lightbox-content" onClick={e => e.stopPropagation()}>
-                        <button className="close-btn" onClick={() => setSelectedArtwork(null)}>×</button>
-                        <img src={selectedArtwork.imageUrl} alt={selectedArtwork.title} />
-                        <div className="info">
-                            <h2>{selectedArtwork.title}</h2>
-                            <p className="meta">{selectedArtwork.category} • {new Date(selectedArtwork.createdAt).toLocaleDateString()}</p>
-                            <p className="desc">{selectedArtwork.description}</p>
-                        </div>
-                    </div>
-                </div>
-            )}
+      {selectedArtwork && (
+        <div
+          className="lightbox"
+          onClick={() => setSelectedArtwork(null)}
+        >
+          <div className="lightbox-content" onClick={e => e.stopPropagation()}>
+            <button className="close-btn" onClick={() => setSelectedArtwork(null)}>×</button>
+            <img src={selectedArtwork.imageUrl} alt={selectedArtwork.title} />
+            <div className="info">
+              <h2>{selectedArtwork.title}</h2>
+              <p className="meta">{selectedArtwork.category} • {new Date(selectedArtwork.createdAt).toLocaleDateString()}</p>
+              <p className="desc">{selectedArtwork.description}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
-            <style jsx>{`
+      <style jsx>{`
         .masonry-grid {
           column-count: 1;
           column-gap: 1.5rem;
@@ -76,7 +76,7 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
           transform: scale(1.02);
         }
 
-        .overlay {
+        .artwork-overlay {
           position: absolute;
           bottom: 0;
           left: 0;
@@ -88,7 +88,7 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
           color: white;
         }
 
-        .masonry-item:hover .overlay {
+        .masonry-item:hover .artwork-overlay {
           opacity: 1;
         }
 
@@ -169,6 +169,6 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
           to { opacity: 1; }
         }
       `}</style>
-        </>
-    );
+    </>
+  );
 }

@@ -28,6 +28,9 @@ export default function AdminPage() {
 
     const [editingArtwork, setEditingArtwork] = useState<Artwork | null>(null);
 
+    // Drag-and-drop state
+    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
     useEffect(() => {
         checkAuth();
         if (isAuthenticated) {
@@ -105,6 +108,48 @@ export default function AdminPage() {
             // Revert
             fetchArtworks();
         }
+    }
+
+    // Drag-and-drop handlers
+    function handleDragStart(index: number) {
+        if (sortBy !== 'manual') return;
+        setDraggedIndex(index);
+    }
+
+    function handleDragOver(e: React.DragEvent, index: number) {
+        e.preventDefault(); // Required to allow drop
+
+        if (draggedIndex === null || draggedIndex === index || sortBy !== 'manual') return;
+
+        // Reorder array
+        const newArtworks = [...artworks];
+        const draggedItem = newArtworks[draggedIndex];
+        newArtworks.splice(draggedIndex, 1);
+        newArtworks.splice(index, 0, draggedItem);
+
+        setArtworks(newArtworks);
+        setDraggedIndex(index);
+    }
+
+    async function handleDragEnd() {
+        if (draggedIndex === null || sortBy !== 'manual') {
+            setDraggedIndex(null);
+            return;
+        }
+
+        // Save to backend
+        try {
+            await fetch('/api/artworks/reorder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ artworkIds: artworks.map(a => a.id) })
+            });
+        } catch (error) {
+            console.error('Failed to save order', error);
+            fetchArtworks(); // Revert on error
+        }
+
+        setDraggedIndex(null);
     }
 
     // Reordering Logic
@@ -268,6 +313,10 @@ export default function AdminPage() {
                     {filteredArtworks.map((artwork, index) => (
                         <div
                             key={artwork.id}
+                            draggable={sortBy === 'manual'}
+                            onDragStart={() => handleDragStart(index)}
+                            onDragOver={(e) => handleDragOver(e, index)}
+                            onDragEnd={handleDragEnd}
                             style={{
                                 display: 'flex',
                                 gap: '1.5rem',
@@ -275,32 +324,22 @@ export default function AdminPage() {
                                 background: 'var(--surface)',
                                 borderRadius: '8px',
                                 alignItems: 'center',
-                                border: '1px solid var(--border)'
+                                border: '1px solid var(--border)',
+                                opacity: draggedIndex === index ? 0.5 : 1,
+                                cursor: sortBy === 'manual' ? 'move' : 'default',
+                                transition: 'opacity 0.2s'
                             }}
                         >
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                                <button
-                                    onClick={() => moveItem(index, 'up')}
-                                    disabled={index === 0 || sortBy !== 'manual'}
-                                    style={{
-                                        opacity: (index === 0 || sortBy !== 'manual') ? 0.3 : 1,
-                                        cursor: (index === 0 || sortBy !== 'manual') ? 'default' : 'pointer',
-                                        background: 'none', border: 'none', color: 'var(--foreground)', fontSize: '1.2rem'
-                                    }}
-                                >
-                                    ↑
-                                </button>
-                                <button
-                                    onClick={() => moveItem(index, 'down')}
-                                    disabled={index === artworks.length - 1 || sortBy !== 'manual'}
-                                    style={{
-                                        opacity: (index === artworks.length - 1 || sortBy !== 'manual') ? 0.3 : 1,
-                                        cursor: (index === artworks.length - 1 || sortBy !== 'manual') ? 'default' : 'pointer',
-                                        background: 'none', border: 'none', color: 'var(--foreground)', fontSize: '1.2rem'
-                                    }}
-                                >
-                                    ↓
-                                </button>
+                            {/* Hamburger drag handle */}
+                            <div style={{
+                                fontSize: '1.5rem',
+                                color: 'var(--foreground)',
+                                opacity: sortBy === 'manual' ? 0.6 : 0.2,
+                                cursor: sortBy === 'manual' ? 'grab' : 'default',
+                                userSelect: 'none',
+                                padding: '0.25rem'
+                            }}>
+                                ☰
                             </div>
 
                             <Image

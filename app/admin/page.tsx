@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import ArtworkForm from '@/components/ArtworkForm';
+import LoginWithGoogle from '@/components/LoginWithGoogle';
 import { Artwork } from '@/lib/store';
 
 // Helper to extract unique mediums
@@ -16,7 +18,6 @@ export default function AdminPage() {
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [artworks, setArtworks] = useState<Artwork[]>([]);
 
@@ -43,28 +44,6 @@ export default function AdminPage() {
             setIsAuthenticated(false);
         } finally {
             setIsLoading(false);
-        }
-    }
-
-    async function handleLogin(e: React.FormEvent) {
-        e.preventDefault();
-        setError('');
-
-        try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password }),
-            });
-
-            if (response.ok) {
-                setIsAuthenticated(true);
-                setPassword('');
-            } else {
-                setError('Invalid password');
-            }
-        } catch {
-            setError('Login failed');
         }
     }
 
@@ -170,47 +149,52 @@ export default function AdminPage() {
 
     const mediums = getMediums(artworks);
 
-    // Render Login helpers... (omitted for brevity, using same logic as before)
+    // Render Login helpers...
     if (isLoading) return <main style={{ padding: '2rem', textAlign: 'center' }}><p>Loading...</p></main>;
+
+    console.log('Client ID:', process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+
     if (!isAuthenticated) return (
-        <main style={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '2rem'
-        }}>
-            <form onSubmit={handleLogin} style={{
-                maxWidth: '400px',
-                width: '100%',
-                background: 'var(--surface)',
-                padding: '2rem',
-                borderRadius: '8px',
-                fontFamily: 'var(--font-comfortaa)'
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''}>
+            <main style={{
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '2rem'
             }}>
-                <h1 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>Admin Login</h1>
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password"
-                    style={{
-                        width: '100%',
-                        padding: '0.75rem',
-                        marginBottom: '1rem',
-                        background: 'var(--background)',
-                        border: '1px solid var(--border)',
-                        borderRadius: '4px',
-                        color: 'var(--foreground)',
-                        fontSize: '1rem',
-                        fontFamily: 'var(--font-comfortaa)'
-                    }}
-                    autoFocus
-                />
-                {error && <p style={{ color: '#ff6b6b', marginBottom: '1rem', fontSize: '0.9rem' }}>{error}</p>}
-                <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>Login</button>
-            </form>
-        </main>
+                <div style={{
+                    maxWidth: '400px',
+                    width: '100%',
+                    background: 'var(--surface)',
+                    padding: '2rem',
+                    borderRadius: '8px',
+                    fontFamily: 'var(--font-comfortaa)',
+                    textAlign: 'center'
+                }}>
+                    <h1 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>Admin Login</h1>
+
+                    {!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
+                        <div style={{ padding: '1rem', background: '#fff3cd', color: '#856404', borderRadius: '4px', marginBottom: '1rem', fontSize: '0.9rem' }}>
+                            ⚠️ Missing Google Client ID. Please configure .env.local
+                        </div>
+                    )}
+
+                    <p style={{ marginBottom: '1.5rem', opacity: 0.8 }}>
+                        Sign in with an authorized Google account to manage artworks.
+                    </p>
+
+                    <LoginWithGoogle
+                        onSuccess={() => {
+                            setIsAuthenticated(true);
+                        }}
+                        onError={(msg) => setError(msg)}
+                    />
+
+                    {error && <p style={{ color: '#ff6b6b', marginTop: '1rem', fontSize: '0.9rem' }}>{error}</p>}
+                </div>
+            </main>
+        </GoogleOAuthProvider>
     );
 
     return (

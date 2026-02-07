@@ -23,7 +23,4 @@ export async function verifySession(token: string): Promise<boolean> {
     }
 }
 
-export function verifyPassword(password: string): boolean {
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-    return password === adminPassword;
-}
+

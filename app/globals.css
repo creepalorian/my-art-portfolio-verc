@@ -216,12 +216,13 @@ h6 {
 
 @media (max-width: 767px) {
 
-  /* Position filter button in header next to hamburger */
+  /* Position filter button next to hamburger menu */
   .mobile-filter-toggle {
     display: block !important;
     position: fixed;
-    top: 8px;
-    right: var(--spacing-md);
+    top: 70px;
+    left: 70px;
+    /* Right next to hamburger (20px + 40px width + 10px gap) */
     z-index: 201;
     /* Above header */
   }

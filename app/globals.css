@@ -191,15 +191,39 @@ h6 {
   display: none;
 }
 
+.mobile-filter-toggle button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  transition: background 0.2s ease;
+  border-radius: 4px;
+}
+
+.mobile-filter-toggle button:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
 .filter-bar {
   display: flex;
 }
 
 @media (max-width: 767px) {
 
-  /* Show mobile toggle button */
+  /* Position filter button in header next to hamburger */
   .mobile-filter-toggle {
     display: block !important;
+    position: fixed;
+    top: 8px;
+    right: var(--spacing-md);
+    z-index: 201;
+    /* Above header */
   }
 
   /* Hide desktop filter bar by default on mobile */
@@ -212,6 +236,7 @@ h6 {
     display: flex !important;
     flex-direction: column;
     gap: 0.75rem;
+    margin-top: 0;
   }
 
   /* Make filter inputs full width on mobile */

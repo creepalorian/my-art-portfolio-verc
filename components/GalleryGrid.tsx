@@ -62,6 +62,7 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
     setSearchQuery('');
     setSelectedMedium('all');
     setSelectedYear('all');
+    setShowMobileFilters(false); // Auto-collapse on mobile
   };
 
   // Check if any filters are active
@@ -70,41 +71,29 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
   return (
     <>
       {/* Mobile Filter Toggle Button */}
-      <div style={{
-        display: 'none',
-        marginBottom: 'var(--spacing-md)'
-      }}
-        className="mobile-filter-toggle">
+      <div className="mobile-filter-toggle">
         <button
           onClick={() => setShowMobileFilters(!showMobileFilters)}
+          aria-label="Toggle filters"
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.75rem 1rem',
-            background: 'var(--surface)',
-            border: '1px solid var(--border)',
-            borderRadius: '4px',
-            color: 'var(--foreground)',
-            fontSize: '1rem',
-            cursor: 'pointer',
-            width: '100%',
-            justifyContent: 'center'
+            position: 'relative'
           }}
         >
           <span style={{ fontSize: '1.2rem' }}>🔍</span>
-          <span>Filters</span>
           {hasActiveFilters && (
             <span style={{
+              position: 'absolute',
+              top: '-4px',
+              right: '-4px',
               background: 'var(--foreground)',
               color: 'var(--background)',
               borderRadius: '50%',
-              width: '20px',
-              height: '20px',
+              width: '16px',
+              height: '16px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '0.75rem',
+              fontSize: '0.65rem',
               fontWeight: 'bold'
             }}>
               {(searchQuery ? 1 : 0) + (selectedMedium !== 'all' ? 1 : 0) + (selectedYear !== 'all' ? 1 : 0)}

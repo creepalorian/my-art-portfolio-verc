@@ -123,15 +123,15 @@ export async function saveArtworks(artworks: Artwork[]): Promise<void> {
         await new Promise((resolve, reject) => {
             cloudinary.uploader.upload_stream(
                 {
-                    public_id: PUBLIC_ID,  // Explicitly set the public ID
+                    public_id: PUBLIC_ID,
                     resource_type: 'raw',
                     overwrite: true,
-                    invalidate: true
+                    // removed invalidate: true to avoid potential permission issues
                 },
                 (error, result) => {
                     if (error) {
                         console.error('Cloudinary upload error:', error);
-                        reject(error);
+                        reject(new Error(error.message || 'Cloudinary upload failed'));
                     } else {
                         console.log('Saved data to Cloudinary:', result?.secure_url);
                         resolve(result);

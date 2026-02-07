@@ -6,6 +6,11 @@ import { useState, useEffect } from 'react';
 export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
 
+  // Search & Filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedMedium, setSelectedMedium] = useState('all');
+  const [selectedYear, setSelectedYear] = useState('all');
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!selectedArtwork) return;
@@ -34,18 +39,137 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
     setSelectedArtwork(artworks[prevIndex]);
   };
 
-  if (artworks.length === 0) {
-    return (
-      <div style={{ textAlign: 'center', padding: '4rem 0', color: '#888' }}>
-        No artworks found.
-      </div>
-    );
-  }
+  // Extract unique mediums and years
+  const uniqueMediums = Array.from(new Set(artworks.map(a => a.medium))).sort();
+  const uniqueYears = Array.from(
+    new Set(artworks.map(a => new Date(a.date).getFullYear().toString()))
+  ).sort((a, b) => parseInt(b) - parseInt(a)); // Newest first
+
+  // Filter artworks
+  const filteredArtworks = artworks.filter(artwork => {
+    const matchesSearch = artwork.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      artwork.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesMedium = selectedMedium === 'all' || artwork.medium === selectedMedium;
+    const matchesYear = selectedYear === 'all' ||
+      new Date(artwork.date).getFullYear().toString() === selectedYear;
+
+    return matchesSearch && matchesMedium && matchesYear;
+  });
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchQuery('');
+    setSelectedMedium('all');
+    setSelectedYear('all');
+  };
+
+  // Check if any filters are active
+  const hasActiveFilters = searchQuery !== '' || selectedMedium !== 'all' || selectedYear !== 'all';
 
   return (
     <>
+      {/* Filter Bar */}
+      <div style={{
+        display: 'flex',
+        gap: '1rem',
+        padding: '1rem',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: '4px',
+        marginBottom: 'var(--spacing-md)',
+        flexWrap: 'wrap',
+        alignItems: 'center'
+      }}>
+        {/* Search Input */}
+        <input
+          type="text"
+          placeholder="🔍 Search artworks..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{
+            flex: '1 1 200px',
+            padding: '0.75rem',
+            background: 'var(--background)',
+            border: '1px solid var(--border)',
+            borderRadius: '4px',
+            color: 'var(--foreground)',
+            fontSize: '0.9rem',
+            fontFamily: 'inherit'
+          }}
+        />
+
+        {/* Medium Filter */}
+        <select
+          value={selectedMedium}
+          onChange={(e) => setSelectedMedium(e.target.value)}
+          style={{
+            padding: '0.75rem',
+            background: 'var(--background)',
+            border: '1px solid var(--border)',
+            borderRadius: '4px',
+            color: 'var(--foreground)',
+            fontSize: '0.9rem',
+            fontFamily: 'inherit',
+            cursor: 'pointer'
+          }}
+        >
+          <option value="all">All Mediums</option>
+          {uniqueMediums.map(medium => (
+            <option key={medium} value={medium}>{medium}</option>
+          ))}
+        </select>
+
+        {/* Year Filter */}
+        <select
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(e.target.value)}
+          style={{
+            padding: '0.75rem',
+            background: 'var(--background)',
+            border: '1px solid var(--border)',
+            borderRadius: '4px',
+            color: 'var(--foreground)',
+            fontSize: '0.9rem',
+            fontFamily: 'inherit',
+            cursor: 'pointer'
+          }}
+        >
+          <option value="all">All Years</option>
+          {uniqueYears.map(year => (
+            <option key={year} value={year}>{year}</option>
+          ))}
+        </select>
+
+        {/* Clear Button */}
+        {hasActiveFilters && (
+          <button
+            onClick={clearFilters}
+            className="btn btn-outline"
+            style={{ padding: '0.75rem 1.25rem' }}
+          >
+            Clear
+          </button>
+        )}
+
+        {/* Result Count */}
+        <div style={{
+          marginLeft: 'auto',
+          fontSize: '0.9rem',
+          opacity: 0.7,
+          whiteSpace: 'nowrap'
+        }}>
+          Showing {filteredArtworks.length} of {artworks.length}
+        </div>
+      </div>
+
+      {/* Empty State */}
+      {filteredArtworks.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '4rem 0', color: '#888' }}>
+          {hasActiveFilters ? 'No artworks match your filters.' : 'No artworks found.'}
+        </div>
+      )}
       <div className="masonry-grid">
-        {artworks.map((artwork) => (
+        {filteredArtworks.map((artwork) => (
           <div
             key={artwork.id}
             className="masonry-item"

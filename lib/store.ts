@@ -33,6 +33,45 @@ export async function getDebugInfo() {
     return { url, publicId: PUBLIC_ID };
 }
 
+/**
+ * Retrieves the latest version of the artworks data directly from Cloudinary API.
+ * This bypasses CDN caching to ensure data consistency for write operations.
+ */
+async function getLatestArtworks(): Promise<Artwork[]> {
+    try {
+        // Use Admin API to get current version
+        const resource = await cloudinary.api.resource(PUBLIC_ID, {
+            resource_type: 'raw',
+            type: 'upload'
+        });
+
+        // Use the secure_url which includes the version number (e.g., .../v123456/...)
+        const url = resource.secure_url;
+
+        const response = await fetch(`${url}?t=${Date.now()}`, {
+            cache: 'no-store'
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch raw data from URL: ${response.status} ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error: any) {
+        // Check if error is from Cloudinary API (not found - 404)
+        if (error.error?.http_code === 404) {
+             console.log('Data file not found via API (first run?), returning empty list');
+             return [];
+        }
+        console.error('Error fetching latest artworks:', error);
+        throw error; // Throw error to prevent data loss on transient failures
+    }
+}
+
+/**
+ * Retrieves artworks using the public URL (CDN).
+ * Suitable for read-only operations where eventual consistency is acceptable.
+ */
 export async function getArtworks(): Promise<Artwork[]> {
     try {
         const url = cloudinary.url(PUBLIC_ID, {
@@ -46,8 +85,12 @@ export async function getArtworks(): Promise<Artwork[]> {
         });
 
         if (!response.ok) {
-            console.log('No data file found (first run?), returning empty list');
-            return [];
+            if (response.status === 404) {
+                console.log('No data file found (first run?), returning empty list');
+                return [];
+            }
+            console.warn(`getArtworks warning: response status ${response.status}`);
+            return []; // Fallback for public display
         }
 
         return await response.json();
@@ -88,7 +131,8 @@ export async function saveArtworks(artworks: Artwork[]): Promise<void> {
 }
 
 export async function addArtwork(artwork: Omit<Artwork, 'createdAt'>): Promise<Artwork> {
-    const artworks = await getArtworks();
+    // Use getLatestArtworks to ensure we don't overwrite with stale data
+    const artworks = await getLatestArtworks();
     const newArtwork: Artwork = {
         ...artwork,
         createdAt: Date.now(),
@@ -99,7 +143,8 @@ export async function addArtwork(artwork: Omit<Artwork, 'createdAt'>): Promise<A
 }
 
 export async function updateArtwork(id: string, updates: Partial<Artwork>): Promise<Artwork[]> {
-    const artworks = await getArtworks();
+    // Use getLatestArtworks to ensure we find the artwork even if just added
+    const artworks = await getLatestArtworks();
     const index = artworks.findIndex(a => a.id === id);
 
     if (index === -1) {
@@ -114,7 +159,8 @@ export async function updateArtwork(id: string, updates: Partial<Artwork>): Prom
 }
 
 export async function deleteArtwork(id: string): Promise<void> {
-    const artworks = await getArtworks();
+    // Use getLatestArtworks to ensure we don't delete wrong items or save empty list due to stale read
+    const artworks = await getLatestArtworks();
     const filtered = artworks.filter(a => a.id !== id);
     await saveArtworks(filtered);
 }

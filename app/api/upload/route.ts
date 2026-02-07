@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
                 {
                     folder: 'art-portfolio',
                     resource_type: 'auto',
+                    format: 'jpg', // Force JPG conversion for HEIC compatibility
                 },
                 (error, result) => {
                     if (error) reject(error);

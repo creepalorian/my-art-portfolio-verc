@@ -68,12 +68,19 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
   // Check if any filters are active
   const hasActiveFilters = searchQuery !== '' || selectedMedium !== 'all' || selectedYear !== 'all';
 
+
   return (
     <>
       {/* Mobile Filter Toggle Button */}
       <div className="mobile-filter-toggle">
         <button
-          onClick={() => setShowMobileFilters(!showMobileFilters)}
+          onClick={() => {
+            setShowMobileFilters(!showMobileFilters);
+            // Scroll to top when opening filters so user can see them
+            if (!showMobileFilters) {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          }}
           aria-label="Toggle filters"
           style={{
             position: 'relative'

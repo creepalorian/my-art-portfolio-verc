@@ -132,11 +132,12 @@ export default function ArtworkForm({ onSuccess, editArtwork, onCancelEdit }: Ar
                     setTimeout(() => setSuccessMessage(''), 3000);
                 }
             } else {
-                alert('Failed to save artwork');
+                const errorData = await res.json();
+                alert(`Failed to save artwork: ${errorData.error || 'Unknown error'}`);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error:', error);
-            alert('Error saving artwork');
+            alert(`Error saving artwork: ${error.message || 'Unknown error'}`);
         } finally {
             setLoading(false);
             setUploadProgress('');

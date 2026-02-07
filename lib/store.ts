@@ -58,11 +58,15 @@ export async function getArtworks(): Promise<Artwork[]> {
 }
 
 async function getStoreArtworks(): Promise<Artwork[]> {
+    console.log('Fetching store artworks...');
     try {
         // Use Admin API to check existence and get latest version URL
+        // This bypasses CDN cache but requires Admin API permissions
         const resource = await cloudinary.api.resource(PUBLIC_ID, {
             resource_type: 'raw'
         });
+
+        console.log('Admin API resource found:', resource.secure_url);
 
         // resource.secure_url should be the versioned URL
         const response = await fetch(resource.secure_url, { cache: 'no-store' });
@@ -75,10 +79,39 @@ async function getStoreArtworks(): Promise<Artwork[]> {
     } catch (error: any) {
         // Check if resource not found (404)
         if (error?.http_code === 404 || error?.message?.includes('not found') || error?.error?.http_code === 404) {
+            console.log('Store file not found (404), returning empty list.');
             return [];
         }
-        console.error('Error reading store data from Cloudinary:', error);
-        throw error; // Re-throw to prevent data loss
+
+        console.warn('Admin API failed or blocked, attempting fallback to CDN fetch...', error.message);
+
+        // Fallback: Fetch directly from CDN with cache-busting
+        // This is less robust against CDN caching but works if Admin API is restricted
+        try {
+             const url = cloudinary.url(PUBLIC_ID, {
+                resource_type: 'raw',
+                secure: true
+            });
+            const fallbackResponse = await fetch(`${url}?t=${Date.now()}`, {
+                cache: 'no-store'
+            });
+
+            if (fallbackResponse.ok) {
+                console.log('Fallback fetch succeeded.');
+                return await fallbackResponse.json();
+            } else if (fallbackResponse.status === 404) {
+                 console.log('Fallback fetch returned 404, returning empty list.');
+                 return [];
+            }
+
+             console.error('Fallback fetch failed with status:', fallbackResponse.status);
+        } catch (fallbackError) {
+             console.error('Fallback fetch threw error:', fallbackError);
+        }
+
+        // If both fail, re-throw the original error to be safe
+        console.error('All fetch attempts failed. Original error:', error);
+        throw error;
     }
 }
 

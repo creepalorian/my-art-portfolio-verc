@@ -278,12 +278,22 @@ export default function AdminPage() {
                             value={filterMedium}
                             onChange={(e) => setFilterMedium(e.target.value)}
                             style={{
-                                padding: '0.5rem',
+                                padding: '0.75rem',
                                 borderRadius: '4px',
                                 border: '1px solid var(--border)',
                                 background: 'var(--background)',
                                 color: 'var(--foreground)',
-                                fontFamily: 'inherit'
+                                fontFamily: 'inherit',
+                                minHeight: '44px',
+                                WebkitAppearance: 'none' as any,
+                                appearance: 'none',
+                                cursor: 'pointer',
+                                paddingRight: '2.5rem',
+                                backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'%3E%3Cpath fill=\'%23888\' d=\'M6 9L1 4h10z\'/%3E%3C/svg%3E")',
+                                backgroundRepeat: 'no-repeat',
+                                backgroundPosition: 'right 0.75rem center',
+                                backgroundSize: '12px',
+                                boxSizing: 'border-box' as any
                             }}
                         >
                             <option value="">All Mediums</option>
@@ -293,12 +303,22 @@ export default function AdminPage() {
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value)}
                             style={{
-                                padding: '0.5rem',
+                                padding: '0.75rem',
                                 borderRadius: '4px',
                                 border: '1px solid var(--border)',
                                 background: 'var(--background)',
                                 color: 'var(--foreground)',
-                                fontFamily: 'inherit'
+                                fontFamily: 'inherit',
+                                minHeight: '44px',
+                                WebkitAppearance: 'none' as any,
+                                appearance: 'none',
+                                cursor: 'pointer',
+                                paddingRight: '2.5rem',
+                                backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'%3E%3Cpath fill=\'%23888\' d=\'M6 9L1 4h10z\'/%3E%3C/svg%3E")',
+                                backgroundRepeat: 'no-repeat',
+                                backgroundPosition: 'right 0.75rem center',
+                                backgroundSize: '12px',
+                                boxSizing: 'border-box' as any
                             }}
                         >
                             <option value="manual">Manual Order</option>

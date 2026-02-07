@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
                 {
                     folder: 'art-portfolio',
                     resource_type: 'auto',
-                    // Removed format: 'jpg' since client-side conversion already handles this
+                    format: 'jpg', // Force conversion to jpg (handles HEIC)
                 },
                 (error, result) => {
                     if (error) reject(error);

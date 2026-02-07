@@ -235,10 +235,11 @@ export default function ContactForm() {
                 className="btn btn-primary"
                 style={{
                     opacity: status === 'loading' ? 0.6 : 1,
-                    cursor: status === 'loading' ? 'not-allowed' : 'pointer'
+                    cursor: status === 'loading' ? 'not-allowed' : 'pointer',
+                    fontFamily: 'inherit'
                 }}
             >
-                {status === 'loading' ? 'Sending...' : 'Send Message'}
+                {status === 'loading' ? 'Sending...' : 'Go Time'}
             </button>
         </form>
     );

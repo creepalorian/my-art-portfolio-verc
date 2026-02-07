@@ -218,7 +218,7 @@ export default function ArtworkForm({ onSuccess, editArtwork, onCancelEdit }: Ar
                 )}
                 <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,.heic,.heif"
                     onChange={handleFileChange}
                     required={!editArtwork}
                     style={inputStyle}

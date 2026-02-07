@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import heic2any from 'heic2any';
 import { Artwork } from '@/lib/store';
 
 const MEDIUM_OPTIONS = [
@@ -155,7 +156,7 @@ export default function ArtworkForm({ onSuccess, editArtwork, onCancelEdit }: Ar
         }
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             const maxSize = 5 * 1024 * 1024; // 5MB in bytes
@@ -164,6 +165,45 @@ export default function ArtworkForm({ onSuccess, editArtwork, onCancelEdit }: Ar
                 setFileError('File size must be less than 5MB. Please compress your image and try again.');
                 setImageFile(null);
                 e.target.value = ''; // Clear the input
+                return;
+            }
+
+            // Check if file is HEIC/HEIF and convert to JPEG
+            const isHEIC = file.type === 'image/heic' || file.type === 'image/heif' ||
+                file.name.toLowerCase().endsWith('.heic') ||
+                file.name.toLowerCase().endsWith('.heif');
+
+            if (isHEIC) {
+                try {
+                    setFileError('');
+                    setUploadProgress('Converting HEIC to JPEG...');
+
+                    // Convert HEIC to JPEG
+                    const convertedBlob = await heic2any({
+                        blob: file,
+                        toType: 'image/jpeg',
+                        quality: 0.9
+                    });
+
+                    // heic2any can return Blob or Blob[], handle both cases
+                    const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+
+                    // Create a new File from the converted blob
+                    const convertedFile = new File(
+                        [blob],
+                        file.name.replace(/\.(heic|heif)$/i, '.jpg'),
+                        { type: 'image/jpeg' }
+                    );
+
+                    setImageFile(convertedFile);
+                    setUploadProgress('');
+                } catch (conversionError) {
+                    console.error('HEIC conversion error:', conversionError);
+                    setFileError('Failed to convert HEIC image. Please try a different photo or convert it to JPEG first.');
+                    setImageFile(null);
+                    e.target.value = '';
+                    setUploadProgress('');
+                }
             } else {
                 setFileError('');
                 setImageFile(file);

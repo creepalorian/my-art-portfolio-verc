@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
     try {
@@ -28,31 +31,61 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // For now, just log the contact form submission
-        // In production, you would send an email here using a service like Resend, SendGrid, etc.
-        console.log('Contact form submission:', {
-            name,
-            email,
-            subject,
-            message,
-            timestamp: new Date().toISOString()
+        // Map subject values to readable labels
+        const subjectLabels: Record<string, string> = {
+            general: 'General Inquiry',
+            commission: 'Commission Request',
+            collaboration: 'Collaboration',
+            press: 'Press/Media'
+        };
+
+        const subjectLabel = subjectLabels[subject] || subject;
+
+        // Send email via Resend
+        await resend.emails.send({
+            from: 'Contact Form <onboarding@resend.dev>', // Resend's default sender
+            to: 'creepalorian@gmail.com',
+            replyTo: email, // User can reply directly to the sender
+            subject: `Contact Form: ${subjectLabel}`,
+            html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+            New Contact Form Submission
+          </h2>
+          
+          <div style="margin: 20px 0;">
+            <p style="margin: 10px 0;">
+              <strong>From:</strong> ${name}
+            </p>
+            <p style="margin: 10px 0;">
+              <strong>Email:</strong> <a href="mailto:${email}">${email}</a>
+            </p>
+            <p style="margin: 10px 0;">
+              <strong>Subject:</strong> ${subjectLabel}
+            </p>
+          </div>
+          
+          <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="margin: 0; white-space: pre-wrap;">${message}</p>
+          </div>
+          
+          <p style="color: #666; font-size: 12px; margin-top: 30px;">
+            Submitted on ${new Date().toLocaleString('en-US', {
+                dateStyle: 'full',
+                timeStyle: 'short',
+                timeZone: 'Asia/Singapore'
+            })}
+          </p>
+        </div>
+      `
         });
 
-        // TODO: Implement email sending
-        // Example with Resend:
-        // const resend = new Resend(process.env.RESEND_API_KEY);
-        // await resend.emails.send({
-        //   from: 'contact@creepalorian.com',
-        //   to: 'creepalorian@gmail.com',
-        //   subject: `Contact Form: ${subject}`,
-        //   html: `
-        //     <h2>New Contact Form Submission</h2>
-        //     <p><strong>From:</strong> ${name} (${email})</p>
-        //     <p><strong>Subject:</strong> ${subject}</p>
-        //     <p><strong>Message:</strong></p>
-        //     <p>${message}</p>
-        //   `
-        // });
+        console.log('Contact form email sent successfully:', {
+            name,
+            email,
+            subject: subjectLabel,
+            timestamp: new Date().toISOString()
+        });
 
         return NextResponse.json(
             { success: true, message: 'Message sent successfully' },
@@ -61,7 +94,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         console.error('Contact form error:', error);
         return NextResponse.json(
-            { error: 'Internal server error' },
+            { error: 'Failed to send message. Please try again.' },
             { status: 500 }
         );
     }

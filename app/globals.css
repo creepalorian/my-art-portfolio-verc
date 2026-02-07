@@ -185,3 +185,45 @@ h6 {
 .carousel-control-btn:hover {
   background-color: rgba(255, 255, 255, 0.3) !important;
 }
+
+/* Mobile Filter Toggle */
+.mobile-filter-toggle {
+  display: none;
+}
+
+.filter-bar {
+  display: flex;
+}
+
+@media (max-width: 767px) {
+
+  /* Show mobile toggle button */
+  .mobile-filter-toggle {
+    display: block !important;
+  }
+
+  /* Hide desktop filter bar by default on mobile */
+  .filter-bar {
+    display: none !important;
+  }
+
+  /* Show filter bar when mobile filters are active */
+  .filter-bar.show-mobile {
+    display: flex !important;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  /* Make filter inputs full width on mobile */
+  .filter-bar.show-mobile input,
+  .filter-bar.show-mobile select {
+    width: 100%;
+    flex: 1 1 auto !important;
+  }
+
+  /* Stack result count below filters on mobile */
+  .filter-bar.show-mobile>div:last-child {
+    margin-left: 0 !important;
+    text-align: center;
+  }
+}

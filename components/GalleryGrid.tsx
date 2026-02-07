@@ -10,6 +10,7 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMedium, setSelectedMedium] = useState('all');
   const [selectedYear, setSelectedYear] = useState('all');
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -68,6 +69,50 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
 
   return (
     <>
+      {/* Mobile Filter Toggle Button */}
+      <div style={{
+        display: 'none',
+        marginBottom: 'var(--spacing-md)'
+      }}
+        className="mobile-filter-toggle">
+        <button
+          onClick={() => setShowMobileFilters(!showMobileFilters)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.75rem 1rem',
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: '4px',
+            color: 'var(--foreground)',
+            fontSize: '1rem',
+            cursor: 'pointer',
+            width: '100%',
+            justifyContent: 'center'
+          }}
+        >
+          <span style={{ fontSize: '1.2rem' }}>🔍</span>
+          <span>Filters</span>
+          {hasActiveFilters && (
+            <span style={{
+              background: 'var(--foreground)',
+              color: 'var(--background)',
+              borderRadius: '50%',
+              width: '20px',
+              height: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '0.75rem',
+              fontWeight: 'bold'
+            }}>
+              {(searchQuery ? 1 : 0) + (selectedMedium !== 'all' ? 1 : 0) + (selectedYear !== 'all' ? 1 : 0)}
+            </span>
+          )}
+        </button>
+      </div>
+
       {/* Filter Bar */}
       <div style={{
         display: 'flex',
@@ -79,7 +124,8 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
         marginBottom: 'var(--spacing-md)',
         flexWrap: 'wrap',
         alignItems: 'center'
-      }}>
+      }}
+        className={`filter-bar ${showMobileFilters ? 'show-mobile' : ''}`}>
         {/* Search Input */}
         <input
           type="text"

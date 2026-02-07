@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import heic2any from 'heic2any';
 import { Artwork } from '@/lib/store';
 
 const MEDIUM_OPTIONS = [
@@ -177,6 +176,9 @@ export default function ArtworkForm({ onSuccess, editArtwork, onCancelEdit }: Ar
                 try {
                     setFileError('');
                     setUploadProgress('Converting HEIC to JPEG...');
+
+                    // Dynamically import heic2any to avoid SSR issues
+                    const heic2any = (await import('heic2any')).default;
 
                     // Convert HEIC to JPEG
                     const convertedBlob = await heic2any({

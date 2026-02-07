@@ -23,13 +23,15 @@ export async function POST(request: NextRequest) {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
+        console.log(`Upload attempt: ${file.name}, type: ${file.type}, size: ${buffer.length} bytes`);
+
         // Upload to Cloudinary
         const result = await new Promise((resolve, reject) => {
             cloudinary.uploader.upload_stream(
                 {
                     folder: 'art-portfolio',
                     resource_type: 'auto',
-                    format: 'jpg', // Force JPG conversion for HEIC compatibility
+                    // Removed format: 'jpg' since client-side conversion already handles this
                 },
                 (error, result) => {
                     if (error) reject(error);
@@ -45,7 +47,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         console.error('Upload error:', error);
         return NextResponse.json(
-            { error: 'Upload failed' },
+            { error: 'Upload failed', details: error instanceof Error ? error.message : String(error) },
             { status: 500 }
         );
     }

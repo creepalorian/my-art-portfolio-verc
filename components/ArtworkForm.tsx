@@ -38,6 +38,7 @@ export default function ArtworkForm({ onSuccess, editArtwork, onCancelEdit }: Ar
     const [loading, setLoading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [fileError, setFileError] = useState('');
 
     // Populate form when editing
     useEffect(() => {
@@ -155,7 +156,19 @@ export default function ArtworkForm({ onSuccess, editArtwork, onCancelEdit }: Ar
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) setImageFile(e.target.files[0]);
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+
+            if (file.size > maxSize) {
+                setFileError('File size must be less than 5MB. Please compress your image and try again.');
+                setImageFile(null);
+                e.target.value = ''; // Clear the input
+            } else {
+                setFileError('');
+                setImageFile(file);
+            }
+        }
     };
 
     const inputStyle = {
@@ -214,6 +227,23 @@ export default function ArtworkForm({ onSuccess, editArtwork, onCancelEdit }: Ar
                     <p style={{ fontSize: '0.85rem', opacity: 0.7 }}>
                         Selected: {imageFile.name}
                     </p>
+                )}
+                {fileError && (
+                    <div style={{
+                        marginTop: '0.5rem',
+                        padding: '0.8rem',
+                        background: 'rgba(255, 0, 0, 0.1)',
+                        border: '1px solid rgba(255, 0, 0, 0.3)',
+                        borderRadius: '4px',
+                        color: '#ff6b6b',
+                        fontSize: '0.85rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                    }}>
+                        <span>⚠️</span>
+                        <span>{fileError}</span>
+                    </div>
                 )}
             </div>
 

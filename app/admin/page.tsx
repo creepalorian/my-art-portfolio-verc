@@ -7,12 +7,129 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import ArtworkForm from '@/components/ArtworkForm';
 import LoginWithGoogle from '@/components/LoginWithGoogle';
 import { Artwork } from '@/lib/store';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 // Helper to extract unique mediums
 const getMediums = (items: Artwork[]) => {
-    const mediums = new Set(items.map(i => i.medium).filter(Boolean));
+    const mediums = new Set(items.map(item => item.medium));
     return Array.from(mediums).sort();
 };
+
+// Sortable Artwork Item Component
+interface SortableArtworkItemProps {
+    artwork: Artwork;
+    sortBy: string;
+    onEdit: (artwork: Artwork) => void;
+    onDelete: (id: string) => void;
+    onFeaturedToggle: (artwork: Artwork, isFeatured: boolean) => void;
+}
+
+function SortableArtworkItem({ artwork, sortBy, onEdit, onDelete, onFeaturedToggle }: SortableArtworkItemProps) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging
+    } = useSortable({ id: artwork.id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+    };
+
+    const isDragEnabled = sortBy === 'manual';
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={{
+                ...style,
+                display: 'flex',
+                gap: '1.5rem',
+                padding: '1.5rem',
+                background: 'var(--surface)',
+                borderRadius: '8px',
+                alignItems: 'center',
+                border: '1px solid var(--border)'
+            }}
+        >
+            {/* Drag Handle */}
+            <div
+                {...attributes}
+                {...listeners}
+                style={{
+                    cursor: isDragEnabled ? 'grab' : 'default',
+                    fontSize: '1.5rem',
+                    color: 'var(--foreground)',
+                    opacity: isDragEnabled ? 0.6 : 0.2,
+                    padding: '0.5rem',
+                    userSelect: 'none',
+                    touchAction: 'none'
+                }}
+            >
+                ☰
+            </div>
+
+            <Image
+                src={artwork.imageUrl}
+                alt={artwork.title}
+                width={100}
+                height={100}
+                style={{
+                    objectFit: 'cover',
+                    borderRadius: '4px'
+                }}
+            />
+            <div style={{ flex: 1 }}>
+                <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{artwork.title}</h3>
+                <p style={{ fontSize: '0.95rem', opacity: 0.8, marginBottom: '0.25rem' }}>
+                    {artwork.medium}
+                </p>
+                <p style={{ fontSize: '0.9rem', opacity: 0.6 }}>
+                    {artwork.date} • {artwork.dimensions}
+                </p>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem', cursor: 'pointer' }}>
+                    <input
+                        type="checkbox"
+                        checked={!!artwork.featured}
+                        onChange={(e) => onFeaturedToggle(artwork, e.target.checked)}
+                        style={{ accentColor: 'var(--primary)' }}
+                    />
+                    <span style={{ fontSize: '0.9rem' }}>Featured (Home)</span>
+                </label>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <button
+                    onClick={() => onEdit(artwork)}
+                    className="btn btn-outline"
+                    style={{
+                        padding: '0.5rem 1rem',
+                        fontSize: '0.9rem'
+                    }}
+                >
+                    Edit
+                </button>
+                <button
+                    onClick={() => onDelete(artwork.id)}
+                    className="btn btn-outline"
+                    style={{
+                        color: '#ff6b6b',
+                        borderColor: '#ff6b6b',
+                        padding: '0.5rem 1rem',
+                        fontSize: '0.9rem'
+                    }}
+                >
+                    Delete
+                </button>
+            </div>
+        </div>
+    );
+}
 
 export default function AdminPage() {
     const router = useRouter();
@@ -108,15 +225,19 @@ export default function AdminPage() {
     }
 
     // Reordering Logic
-    async function moveItem(index: number, direction: 'up' | 'down') {
+    async function handleDragEnd(event: DragEndEvent) {
+        const { active, over } = event;
+
+        if (!over || active.id === over.id) return;
+
+        const oldIndex = artworks.findIndex(a => a.id === active.id);
+        const newIndex = artworks.findIndex(a => a.id === over.id);
+
+        if (oldIndex === -1 || newIndex === -1) return;
+
         const newArtworks = [...artworks];
-        if (direction === 'up' && index > 0) {
-            [newArtworks[index], newArtworks[index - 1]] = [newArtworks[index - 1], newArtworks[index]];
-        } else if (direction === 'down' && index < newArtworks.length - 1) {
-            [newArtworks[index], newArtworks[index + 1]] = [newArtworks[index + 1], newArtworks[index]];
-        } else {
-            return;
-        }
+        const [movedItem] = newArtworks.splice(oldIndex, 1);
+        newArtworks.splice(newIndex, 0, movedItem);
 
         // Optimistic update
         setArtworks(newArtworks);
@@ -131,7 +252,8 @@ export default function AdminPage() {
             router.refresh();
         } catch (error) {
             console.error('Failed to save order', error);
-            // Revert on error could be implemented here
+            // Revert on error
+            fetchArtworks();
         }
     }
 
@@ -264,103 +386,37 @@ export default function AdminPage() {
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gap: '1rem' }}>
-                    {filteredArtworks.map((artwork, index) => (
-                        <div
-                            key={artwork.id}
-                            style={{
-                                display: 'flex',
-                                gap: '1.5rem',
-                                padding: '1.5rem',
-                                background: 'var(--surface)',
-                                borderRadius: '8px',
-                                alignItems: 'center',
-                                border: '1px solid var(--border)'
-                            }}
-                        >
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                                <button
-                                    onClick={() => moveItem(index, 'up')}
-                                    disabled={index === 0 || sortBy !== 'manual'}
-                                    style={{
-                                        opacity: (index === 0 || sortBy !== 'manual') ? 0.3 : 1,
-                                        cursor: (index === 0 || sortBy !== 'manual') ? 'default' : 'pointer',
-                                        background: 'none', border: 'none', color: 'var(--foreground)', fontSize: '1.2rem'
-                                    }}
-                                >
-                                    ↑
-                                </button>
-                                <button
-                                    onClick={() => moveItem(index, 'down')}
-                                    disabled={index === artworks.length - 1 || sortBy !== 'manual'}
-                                    style={{
-                                        opacity: (index === artworks.length - 1 || sortBy !== 'manual') ? 0.3 : 1,
-                                        cursor: (index === artworks.length - 1 || sortBy !== 'manual') ? 'default' : 'pointer',
-                                        background: 'none', border: 'none', color: 'var(--foreground)', fontSize: '1.2rem'
-                                    }}
-                                >
-                                    ↓
-                                </button>
-                            </div>
-
-                            <Image
-                                src={artwork.imageUrl}
-                                alt={artwork.title}
-                                width={100}
-                                height={100}
-                                style={{
-                                    objectFit: 'cover',
-                                    borderRadius: '4px'
-                                }}
-                            />
-                            <div style={{ flex: 1 }}>
-                                <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{artwork.title}</h3>
-                                <p style={{ fontSize: '0.95rem', opacity: 0.8, marginBottom: '0.25rem' }}>
-                                    {artwork.medium}
-                                </p>
-                                <p style={{ fontSize: '0.9rem', opacity: 0.6 }}>
-                                    {artwork.date} • {artwork.dimensions}
-                                </p>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem', cursor: 'pointer' }}>
-                                    <input
-                                        type="checkbox"
-                                        checked={!!artwork.featured}
-                                        onChange={(e) => handleFeaturedToggle(artwork, e.target.checked)}
-                                        style={{ accentColor: 'var(--primary)' }}
-                                    />
-                                    <span style={{ fontSize: '0.9rem' }}>Featured (Home)</span>
-                                </label>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                <button
-                                    onClick={() => startEditing(artwork)}
-                                    className="btn btn-outline"
-                                    style={{
-                                        padding: '0.5rem 1rem',
-                                        fontSize: '0.9rem'
-                                    }}
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(artwork.id)}
-                                    className="btn btn-outline"
-                                    style={{
-                                        color: '#ff6b6b',
-                                        borderColor: '#ff6b6b',
-                                        padding: '0.5rem 1rem',
-                                        fontSize: '0.9rem'
-                                    }}
-                                >
-                                    Delete
-                                </button>
-                            </div>
+                <DndContext
+                    sensors={useSensors(useSensor(PointerSensor, {
+                        activationConstraint: {
+                            distance: 8, // 8px movement required before drag starts
+                        },
+                    }))}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                >
+                    <SortableContext
+                        items={filteredArtworks.map(a => a.id)}
+                        strategy={verticalListSortingStrategy}
+                        disabled={sortBy !== 'manual'}
+                    >
+                        <div style={{ display: 'grid', gap: '1rem' }}>
+                            {filteredArtworks.map((artwork) => (
+                                <SortableArtworkItem
+                                    key={artwork.id}
+                                    artwork={artwork}
+                                    sortBy={sortBy}
+                                    onEdit={startEditing}
+                                    onDelete={handleDelete}
+                                    onFeaturedToggle={handleFeaturedToggle}
+                                />
+                            ))}
+                            {filteredArtworks.length === 0 && (
+                                <p style={{ textAlign: 'center', opacity: 0.5, padding: '2rem' }}>No artworks matching criteria.</p>
+                            )}
                         </div>
-                    ))}
-                    {filteredArtworks.length === 0 && (
-                        <p style={{ textAlign: 'center', opacity: 0.5, padding: '2rem' }}>No artworks matching criteria.</p>
-                    )}
-                </div>
+                    </SortableContext>
+                </DndContext>
             </section>
         </main>
     );

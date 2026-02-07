@@ -79,7 +79,10 @@ export default function ContactForm() {
                         borderRadius: '4px',
                         color: 'var(--foreground)',
                         fontSize: '1rem',
-                        fontFamily: 'inherit'
+                        fontFamily: 'inherit',
+                        minHeight: '44px',
+                        WebkitAppearance: 'none' as any,
+                        boxSizing: 'border-box' as any
                     }}
                 />
             </div>

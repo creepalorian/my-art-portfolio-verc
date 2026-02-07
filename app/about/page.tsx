@@ -24,7 +24,7 @@ export default function AboutPage() {
                 {/* Text Content - Right Column */}
                 <div style={{ flex: '1', minWidth: '300px' }}>
                     <p style={{ lineHeight: '1.8', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
-                        AD is a left-handed artist. He is 11 years old and lives in Singapore. His artworks are inspired by the content he consumes and the visual narratives he gets to explore through books, games, films, and anime.
+                        AD is a left-handed artist from Singapore. His artworks are inspired by the content he consumes and the visual narratives he gets to explore through books, games, films, and anime.
                     </p>
                     <p style={{ lineHeight: '1.8', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
                         P.S: He also enjoys speedcubing

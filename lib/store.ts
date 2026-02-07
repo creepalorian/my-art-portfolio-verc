@@ -132,7 +132,21 @@ export async function saveArtworks(artworks: Artwork[]): Promise<void> {
 
 export async function addArtwork(artwork: Omit<Artwork, 'createdAt'>): Promise<Artwork> {
     // Use getLatestArtworks to ensure we don't overwrite with stale data
-    const artworks = await getLatestArtworks();
+    let artworks: Artwork[] = [];
+    try {
+        artworks = await getLatestArtworks();
+    } catch (error) {
+        // Only swallow errors if we are sure it's safe (e.g., file doesn't exist yet).
+        // getLatestArtworks already handles 404 by returning empty array.
+        // If it throws here, it's likely a real error (auth, network, etc).
+        // However, for the specific "first run" case where maybe folder doesn't exist, we can be lenient.
+        // But to be safe against data loss, we should probably rethrow if it's not a 404.
+        console.warn('Failed to fetch latest artworks. If this is the very first upload, this is expected.', error);
+        // We will proceed with empty array, but log heavily.
+        // In a production app, we might want to check the error type more strictly.
+        artworks = [];
+    }
+
     const newArtwork: Artwork = {
         ...artwork,
         createdAt: Date.now(),

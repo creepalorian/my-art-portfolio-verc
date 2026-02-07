@@ -72,17 +72,26 @@ async function getLatestArtworks(): Promise<Artwork[]> {
  * Retrieves artworks using the public URL (CDN).
  * Suitable for read-only operations where eventual consistency is acceptable.
  */
-export async function getArtworks(): Promise<Artwork[]> {
+export async function getArtworks(options?: { revalidate?: number | false }): Promise<Artwork[]> {
     try {
         const url = cloudinary.url(PUBLIC_ID, {
             resource_type: 'raw',
             secure: true
         });
 
-        // Add cache busting
-        const response = await fetch(`${url}?t=${Date.now()}`, {
-            cache: 'no-store'
-        });
+        let fetchUrl = url;
+        const fetchOptions: RequestInit = {};
+
+        if (options?.revalidate !== undefined) {
+            fetchOptions.next = { revalidate: options.revalidate };
+            // Do not append timestamp to allow Next.js to cache by URL
+        } else {
+            // Default: fresh data
+            fetchUrl = `${url}?t=${Date.now()}`;
+            fetchOptions.cache = 'no-store';
+        }
+
+        const response = await fetch(fetchUrl, fetchOptions);
 
         if (!response.ok) {
             if (response.status === 404) {

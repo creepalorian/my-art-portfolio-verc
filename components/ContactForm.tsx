@@ -155,7 +155,6 @@ export default function ContactForm() {
                     <option value="general">General Inquiry</option>
                     <option value="commission">Commission Request</option>
                     <option value="collaboration">Collaboration</option>
-                    <option value="press">Press/Media</option>
                 </select>
             </div>
 

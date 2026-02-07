@@ -57,6 +57,31 @@ export async function getArtworks(): Promise<Artwork[]> {
     }
 }
 
+async function getStoreArtworks(): Promise<Artwork[]> {
+    try {
+        // Use Admin API to check existence and get latest version URL
+        const resource = await cloudinary.api.resource(PUBLIC_ID, {
+            resource_type: 'raw'
+        });
+
+        // resource.secure_url should be the versioned URL
+        const response = await fetch(resource.secure_url, { cache: 'no-store' });
+
+        if (!response.ok) {
+             throw new Error(`Failed to fetch content: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error: any) {
+        // Check if resource not found (404)
+        if (error?.http_code === 404 || error?.message?.includes('not found') || error?.error?.http_code === 404) {
+            return [];
+        }
+        console.error('Error reading store data from Cloudinary:', error);
+        throw error; // Re-throw to prevent data loss
+    }
+}
+
 export async function saveArtworks(artworks: Artwork[]): Promise<void> {
     try {
         const jsonString = JSON.stringify(artworks, null, 2);
@@ -88,7 +113,7 @@ export async function saveArtworks(artworks: Artwork[]): Promise<void> {
 }
 
 export async function addArtwork(artwork: Omit<Artwork, 'createdAt'>): Promise<Artwork> {
-    const artworks = await getArtworks();
+    const artworks = await getStoreArtworks();
     const newArtwork: Artwork = {
         ...artwork,
         createdAt: Date.now(),
@@ -99,7 +124,7 @@ export async function addArtwork(artwork: Omit<Artwork, 'createdAt'>): Promise<A
 }
 
 export async function updateArtwork(id: string, updates: Partial<Artwork>): Promise<Artwork[]> {
-    const artworks = await getArtworks();
+    const artworks = await getStoreArtworks();
     const index = artworks.findIndex(a => a.id === id);
 
     if (index === -1) {
@@ -114,7 +139,7 @@ export async function updateArtwork(id: string, updates: Partial<Artwork>): Prom
 }
 
 export async function deleteArtwork(id: string): Promise<void> {
-    const artworks = await getArtworks();
+    const artworks = await getStoreArtworks();
     const filtered = artworks.filter(a => a.id !== id);
     await saveArtworks(filtered);
 }

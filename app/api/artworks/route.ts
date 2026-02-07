@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getArtworks, addArtwork } from '@/lib/store';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     // Add cache busting headers to the response itself
     const artworks = await getArtworks();
@@ -24,8 +26,8 @@ export async function POST(request: Request) {
             );
         }
 
-        // addArtwork now returns the full list of artworks!
-        const updatedArtworks = await addArtwork({
+        // addArtwork returns the new artwork object
+        const newArtwork = await addArtwork({
             id: crypto.randomUUID(),
             title,
             description: description || '',
@@ -36,7 +38,7 @@ export async function POST(request: Request) {
             dimensions: dimensions || 'Unknown',
         });
 
-        return NextResponse.json(updatedArtworks, { status: 201 });
+        return NextResponse.json(newArtwork, { status: 201 });
     } catch (error) {
         console.error('Error creating artwork:', error);
         return NextResponse.json(

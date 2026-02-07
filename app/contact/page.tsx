@@ -1,15 +1,13 @@
+import ContactForm from '@/components/ContactForm';
+
 export default function ContactPage() {
     return (
         <main>
             <section style={{ maxWidth: '600px' }}>
-                <p style={{ opacity: 0.8 }}>
-                    For inquiries, commissions, or collaborations, please reach out.
+                <p style={{ opacity: 0.8, marginBottom: 'var(--spacing-md)' }}>
+                    For inquiries, commissions, or collaborations, please fill out the form below and I'll get back to you as soon as possible.
                 </p>
-                <div style={{ marginTop: 'var(--spacing-md)' }}>
-                    <a href="mailto:creepalorian@gmail.com" className="btn btn-primary">
-                        Email Me
-                    </a>
-                </div>
+                <ContactForm />
             </section>
         </main>
     );

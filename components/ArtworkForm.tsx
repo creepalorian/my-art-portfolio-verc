@@ -215,7 +215,7 @@ export default function ArtworkForm({ onSuccess, editArtwork, onCancelEdit }: Ar
 
     const inputStyle = {
         width: '100%',
-        padding: '0.8rem',
+        padding: '0.75rem',
         borderRadius: '4px',
         border: '1px solid var(--border)',
         background: 'var(--background)',
@@ -223,6 +223,9 @@ export default function ArtworkForm({ onSuccess, editArtwork, onCancelEdit }: Ar
         marginBottom: '1rem',
         fontSize: '1rem',
         fontFamily: 'var(--font-comfortaa)',
+        minHeight: '44px',
+        WebkitAppearance: 'none' as any,
+        boxSizing: 'border-box' as any
     };
 
     return (
@@ -292,14 +295,43 @@ export default function ArtworkForm({ onSuccess, editArtwork, onCancelEdit }: Ar
             <input name="title" placeholder="Title *" value={formData.title} onChange={handleChange} required style={inputStyle} />
 
             <div style={{ marginBottom: '1rem' }}>
-                <select name="medium" value={formData.medium} onChange={handleChange} required style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}>
+                <select
+                    name="medium"
+                    value={formData.medium}
+                    onChange={handleChange}
+                    required
+                    style={{
+                        ...inputStyle,
+                        appearance: 'none',
+                        WebkitAppearance: 'none' as any,
+                        cursor: 'pointer',
+                        paddingRight: '2.5rem',
+                        backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'%3E%3Cpath fill=\'%23888\' d=\'M6 9L1 4h10z\'/%3E%3C/svg%3E")',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'right 0.75rem center',
+                        backgroundSize: '12px'
+                    }}
+                >
                     <option value="" disabled>Select Medium *</option>
                     {MEDIUM_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
             </div>
 
             <div style={{ marginBottom: '1rem' }}>
-                <input name="date" type="date" placeholder="Date *" value={formData.date} onChange={handleChange} required style={{ ...inputStyle, colorScheme: 'dark' }} />
+                <input
+                    name="date"
+                    type="date"
+                    placeholder="Date *"
+                    value={formData.date}
+                    onChange={handleChange}
+                    required
+                    style={{
+                        ...inputStyle,
+                        position: 'relative' as any,
+                        paddingRight: '2.5rem'
+                    }}
+                    className="date-input-mobile"
+                />
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>

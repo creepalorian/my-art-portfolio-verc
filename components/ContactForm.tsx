@@ -114,7 +114,10 @@ export default function ContactForm() {
                         borderRadius: '4px',
                         color: 'var(--foreground)',
                         fontSize: '1rem',
-                        fontFamily: 'inherit'
+                        fontFamily: 'inherit',
+                        minHeight: '44px',
+                        WebkitAppearance: 'none' as any,
+                        boxSizing: 'border-box' as any
                     }}
                 />
             </div>
@@ -149,7 +152,16 @@ export default function ContactForm() {
                         color: 'var(--foreground)',
                         fontSize: '1rem',
                         fontFamily: 'inherit',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        minHeight: '44px',
+                        WebkitAppearance: 'none' as any,
+                        appearance: 'none',
+                        paddingRight: '2.5rem',
+                        backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'%3E%3Cpath fill=\'%23888\' d=\'M6 9L1 4h10z\'/%3E%3C/svg%3E")',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'right 0.75rem center',
+                        backgroundSize: '12px',
+                        boxSizing: 'border-box' as any
                     }}
                 >
                     <option value="general">General Inquiry</option>

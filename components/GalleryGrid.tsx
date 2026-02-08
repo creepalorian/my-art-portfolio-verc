@@ -298,13 +298,10 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
           <div className="lightbox-content" onClick={e => e.stopPropagation()}>
             <button className="close-btn" onClick={() => setSelectedArtwork(null)}>×</button>
             <div className="lightbox-image-container">
-              <Image
+              <img
                 src={selectedArtwork.imageUrl}
                 alt={selectedArtwork.title}
-                fill
-                sizes="(min-width: 768px) 60vw, 100vw"
-                priority
-                style={{ objectFit: 'contain' }}
+                loading="eager"
               />
             </div>
             <div className="info">
@@ -416,7 +413,6 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
         
         .lightbox-image-container {
           flex: 1.5;
-          position: relative;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -424,10 +420,16 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
           overflow: hidden;
           min-height: 0;
           min-width: 0;
+          padding: 1rem;
         }
         
         .lightbox-content img {
+          max-width: 100%;
+          max-height: 100%;
+          width: auto;
+          height: auto;
           object-fit: contain;
+          display: block;
         }
         
         .info {

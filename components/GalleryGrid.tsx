@@ -274,7 +274,7 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
               alt={artwork.title}
               {...parseDimensions(artwork.dimensions)}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              style={{ width: '100%', height: 'auto' }}
+              style={{ width: '100%', height: 'auto', display: 'block' }}
             />
             <div className="artwork-overlay">
               <h3>{artwork.title}</h3>

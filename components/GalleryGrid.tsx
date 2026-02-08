@@ -422,19 +422,23 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
           background: black;
           overflow: hidden;
           min-height: 0;
+          min-width: 0;
         }
         
         .lightbox-content img {
           max-width: 100%;
           max-height: 100%;
-          width: auto;
-          height: auto;
+          width: 100% !important;
+          height: 100% !important;
           object-fit: contain;
           display: block;
         }
         
         .info {
+          flex: 1;
           padding: 2rem;
+          overflow-y: auto;
+          min-width: 0;
         }
         
         .close-btn {

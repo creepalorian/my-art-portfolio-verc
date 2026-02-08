@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 
 export default function TopHeader() {
     return (
@@ -29,9 +30,12 @@ export default function TopHeader() {
                     color: "black",
                 }}
             >
-                <img
+                <Image
                     src="/header-full-logo.png"
                     alt="AD Logo"
+                    width={669}
+                    height={319}
+                    priority
                     style={{ height: "40px", width: "auto" }}
                 />
             </Link>

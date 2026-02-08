@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath, revalidateTag } from 'next/cache';
 import { deleteArtwork, updateArtwork } from '@/lib/store';
 
 export async function PUT(
@@ -15,12 +14,6 @@ export async function PUT(
         }
 
         const updatedArtworks = await updateArtwork(id, updates);
-
-        // Invalidate cache
-        revalidatePath('/works');
-        revalidatePath('/');
-        revalidateTag('artworks', 'max');
-
         return NextResponse.json({ success: true, artworks: updatedArtworks });
     } catch (error) {
         console.error('Error updating artwork:', error);
@@ -43,12 +36,6 @@ export async function DELETE(
         }
 
         await deleteArtwork(id);
-
-        // Invalidate cache
-        revalidatePath('/works');
-        revalidatePath('/');
-        revalidateTag('artworks', 'max');
-
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Error deleting artwork:', error);

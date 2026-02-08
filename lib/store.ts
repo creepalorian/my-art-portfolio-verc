@@ -74,37 +74,20 @@ async function getLatestArtworks(): Promise<Artwork[]> {
  */
 export async function getArtworks(options?: { revalidate?: number | false }): Promise<Artwork[]> {
     try {
-        // Try to get the versioned URL from Cloudinary Admin API to bypass stale CDN cache
-        let fetchUrl: string;
-        try {
-            const resource = await cloudinary.api.resource(PUBLIC_ID, {
-                resource_type: 'raw',
-                type: 'upload'
-            });
-            fetchUrl = resource.secure_url; // This URL includes version number (e.g. /v123456/)
-        } catch (apiError) {
-            // Fallback to standard URL generation if API fails (e.g. rate limit or permission)
-            console.warn('Failed to fetch versioned URL from Cloudinary API, falling back to cached URL', apiError);
-            fetchUrl = cloudinary.url(PUBLIC_ID, {
-                resource_type: 'raw',
-                secure: true
-            });
-        }
+        const url = cloudinary.url(PUBLIC_ID, {
+            resource_type: 'raw',
+            secure: true
+        });
 
+        let fetchUrl = url;
         const fetchOptions: RequestInit = {};
 
         if (options?.revalidate !== undefined) {
-            fetchOptions.next = {
-                revalidate: options.revalidate,
-                tags: ['artworks']
-            };
-            // Do not append timestamp to allow Next.js to cache by URL.
-            // Since fetchUrl now likely includes a version number, it acts as a cache key.
+            fetchOptions.next = { revalidate: options.revalidate };
+            // Do not append timestamp to allow Next.js to cache by URL
         } else {
-            // Default: fresh data (force bypass)
-            // Even with versioned URL, we append timestamp to be absolutely sure for client-side fetches or non-ISR
-            const separator = fetchUrl.includes('?') ? '&' : '?';
-            fetchUrl = `${fetchUrl}${separator}t=${Date.now()}`;
+            // Default: fresh data
+            fetchUrl = `${url}?t=${Date.now()}`;
             fetchOptions.cache = 'no-store';
         }
 

@@ -301,8 +301,8 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
               <Image
                 src={selectedArtwork.imageUrl}
                 alt={selectedArtwork.title}
-                {...parseDimensions(selectedArtwork.dimensions)}
-                sizes="100vw"
+                fill
+                sizes="(min-width: 768px) 60vw, 100vw"
                 priority
                 style={{ objectFit: 'contain' }}
               />
@@ -416,6 +416,7 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
         
         .lightbox-image-container {
           flex: 1.5;
+          position: relative;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -426,10 +427,7 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
         }
         
         .lightbox-content img {
-          max-width: 100%;
-          max-height: 100%;
           object-fit: contain;
-          display: block;
         }
         
         .info {

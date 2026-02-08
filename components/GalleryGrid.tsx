@@ -396,9 +396,9 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
         
         .lightbox-content {
           background: var(--surface);
-          max-width: 900px;
+          max-width: 1200px;
           width: 100%;
-          max-height: 90vh;
+          max-height: 95vh;
           overflow-y: auto;
           border-radius: 4px;
           position: relative;
@@ -415,15 +415,16 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
         
         .lightbox-content img {
           width: 100%;
-          height: 100%;
+          height: auto;
           object-fit: contain;
           background: black;
-          max-height: 60vh;
+          max-height: none;
+          display: block;
         }
         
         @media(min-width: 768px) {
           .lightbox-content img {
-            max-height: 80vh;
+            max-height: none;
           }
         }
         

@@ -2,6 +2,27 @@
 
 import { Artwork } from '@/lib/store';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
+
+function parseDimensions(dimensionsStr: string | undefined): { width: number; height: number } {
+  // Default fallback if parsing fails (landscape 4:3)
+  const defaultDims = { width: 800, height: 600 };
+
+  if (!dimensionsStr) return defaultDims;
+
+  // Expected format: "H x W inches" e.g. "24 x 36 inches"
+  const match = dimensionsStr.match(/([\d.]+)\s*x\s*([\d.]+)/);
+  if (match) {
+    const h = parseFloat(match[1]);
+    const w = parseFloat(match[2]);
+    if (!isNaN(w) && !isNaN(h) && w > 0 && h > 0) {
+      // Scale up to provide good resolution
+      // This preserves aspect ratio perfectly.
+      return { width: Math.round(w * 100), height: Math.round(h * 100) };
+    }
+  }
+  return defaultDims;
+}
 
 export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
@@ -248,7 +269,13 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
             className="masonry-item"
             onClick={() => setSelectedArtwork(artwork)}
           >
-            <img src={artwork.imageUrl} alt={artwork.title} loading="lazy" />
+            <Image
+              src={artwork.imageUrl}
+              alt={artwork.title}
+              {...parseDimensions(artwork.dimensions)}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              style={{ width: '100%', height: 'auto' }}
+            />
             <div className="artwork-overlay">
               <h3>{artwork.title}</h3>
               <p>{new Date(artwork.date).getFullYear()}</p>
@@ -270,7 +297,15 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
 
           <div className="lightbox-content" onClick={e => e.stopPropagation()}>
             <button className="close-btn" onClick={() => setSelectedArtwork(null)}>×</button>
-            <img src={selectedArtwork.imageUrl} alt={selectedArtwork.title} />
+            <Image
+              src={selectedArtwork.imageUrl}
+              alt={selectedArtwork.title}
+              {...parseDimensions(selectedArtwork.dimensions)}
+              sizes="100vw"
+              priority
+              style={{ objectFit: 'contain' }} // Maintain containment within lightbox
+              className="lightbox-img" // Add class for specific overrides if needed, though existing CSS targets 'img'
+            />
             <div className="info">
               <h2>{selectedArtwork.title}</h2>
               <p className="meta">{selectedArtwork.medium} • {new Date(selectedArtwork.date).getFullYear()} • {selectedArtwork.dimensions}</p>

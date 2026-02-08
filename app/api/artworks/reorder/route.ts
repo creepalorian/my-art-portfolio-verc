@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { saveArtworks, getArtworks } from '@/lib/store';
 
 export async function POST(request: Request) {
@@ -37,6 +38,10 @@ export async function POST(request: Request) {
         });
 
         await saveArtworks(newOrder);
+
+        // Invalidate cache for works page and landing page
+        revalidatePath('/works');
+        revalidatePath('/');
 
         return NextResponse.json({ success: true, artworks: newOrder });
     } catch (error) {

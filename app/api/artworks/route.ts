@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getArtworks, addArtwork } from '@/lib/store';
 
 export async function GET() {
@@ -35,6 +36,10 @@ export async function POST(request: Request) {
             date: date || new Date().toISOString().split('T')[0],
             dimensions: dimensions || 'Unknown',
         });
+
+        // Invalidate cache
+        revalidatePath('/works');
+        revalidatePath('/');
 
         return NextResponse.json(updatedArtworks, { status: 201 });
     } catch (error) {

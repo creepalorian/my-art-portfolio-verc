@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import styles from "./ImageCarousel.module.css";
 
@@ -20,34 +20,32 @@ export default function ImageCarousel({ images = [] }: { images?: CarouselImage[
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(true);
     const [progress, setProgress] = useState(0);
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
-    const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     // Auto-scroll and progress when playing
     useEffect(() => {
-        if (!isPlaying) {
-            if (intervalRef.current) clearInterval(intervalRef.current);
-            if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
-            return;
-        }
+        if (!isPlaying) return;
 
-        // Progress bar update (60fps for smooth animation)
-        progressIntervalRef.current = setInterval(() => {
-            setProgress((prev) => {
-                if (prev >= 100) return 0;
-                return prev + (100 / (5000 / 16.67)); // 5 seconds total
-            });
-        }, 16.67);
+        let animationFrameId: number;
+        let startTime: number | null = null;
 
-        // Image transition
-        intervalRef.current = setInterval(() => {
-            setCurrentIndex((prev) => (prev + 1) % displayImages.length);
-            setProgress(0);
-        }, 5000);
+        const animate = (timestamp: number) => {
+            if (startTime === null) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+            const duration = 5000;
+
+            if (elapsed >= duration) {
+                setCurrentIndex((prev) => (prev + 1) % displayImages.length);
+                setProgress(0);
+            } else {
+                setProgress((elapsed / duration) * 100);
+                animationFrameId = requestAnimationFrame(animate);
+            }
+        };
+
+        animationFrameId = requestAnimationFrame(animate);
 
         return () => {
-            if (intervalRef.current) clearInterval(intervalRef.current);
-            if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+            cancelAnimationFrame(animationFrameId);
         };
     }, [isPlaying, currentIndex, displayImages.length]);
 

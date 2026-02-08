@@ -297,15 +297,16 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
 
           <div className="lightbox-content" onClick={e => e.stopPropagation()}>
             <button className="close-btn" onClick={() => setSelectedArtwork(null)}>×</button>
-            <Image
-              src={selectedArtwork.imageUrl}
-              alt={selectedArtwork.title}
-              {...parseDimensions(selectedArtwork.dimensions)}
-              sizes="100vw"
-              priority
-              style={{ objectFit: 'contain' }} // Maintain containment within lightbox
-              className="lightbox-img" // Add class for specific overrides if needed, though existing CSS targets 'img'
-            />
+            <div className="lightbox-image-container">
+              <Image
+                src={selectedArtwork.imageUrl}
+                alt={selectedArtwork.title}
+                {...parseDimensions(selectedArtwork.dimensions)}
+                sizes="100vw"
+                priority
+                style={{ objectFit: 'contain' }}
+              />
+            </div>
             <div className="info">
               <h2>{selectedArtwork.title}</h2>
               <p className="meta">{selectedArtwork.medium} • {new Date(selectedArtwork.date).getFullYear()} • {selectedArtwork.dimensions}</p>
@@ -398,34 +399,38 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
           background: var(--surface);
           max-width: 1200px;
           width: 100%;
-          max-height: 95vh;
-          overflow-y: auto;
+          max-height: 90vh;
+          overflow: hidden;
           border-radius: 4px;
           position: relative;
-          display: grid;
-          grid-template-columns: 1fr;
+          display: flex;
+          flex-direction: column;
           margin: 0 3rem; /* Space for arrows */
         }
         
         @media(min-width: 768px) {
           .lightbox-content {
-             grid-template-columns: 1.5fr 1fr;
+             flex-direction: row;
           }
+        }
+        
+        .lightbox-image-container {
+          flex: 1.5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: black;
+          overflow: hidden;
+          min-height: 0;
         }
         
         .lightbox-content img {
-          width: 100%;
+          max-width: 100%;
+          max-height: 100%;
+          width: auto;
           height: auto;
           object-fit: contain;
-          background: black;
-          max-height: 70vh;
           display: block;
-        }
-        
-        @media(min-width: 768px) {
-          .lightbox-content img {
-            max-height: 85vh;
-          }
         }
         
         .info {
@@ -472,7 +477,7 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
         /* Mobile adjustments for nav */
         @media (max-width: 768px) {
             .lightbox { padding: 0.5rem; }
-            .lightbox-content { margin: 0; grid-template-columns: 1fr; }
+            .lightbox-content { margin: 0; flex-direction: column; }
             
             .nav-btn { 
                 position: absolute; 

@@ -339,6 +339,7 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
         .masonry-item img {
           width: 100%;
           display: block;
+          vertical-align: bottom;
           transition: transform 0.3s ease;
         }
 
@@ -358,8 +359,8 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
           color: white;
           text-align: center;
           display: flex;
+          pointer-events: none;
           flex-direction: column;
-          align-items: center;
           justify-content: flex-end;
           height: 100%;
         }
@@ -412,7 +413,7 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
         }
         
         .lightbox-image-container {
-          flex: 1.5;
+          flex: 1;
           display: flex;
           align-items: center;
           justify-content: center;

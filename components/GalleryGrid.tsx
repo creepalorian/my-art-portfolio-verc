@@ -418,13 +418,13 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
           height: auto;
           object-fit: contain;
           background: black;
-          max-height: none;
+          max-height: 70vh;
           display: block;
         }
         
         @media(min-width: 768px) {
           .lightbox-content img {
-            max-height: none;
+            max-height: 85vh;
           }
         }
         

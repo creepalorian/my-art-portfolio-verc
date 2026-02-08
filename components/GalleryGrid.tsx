@@ -428,8 +428,6 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
         .lightbox-content img {
           max-width: 100%;
           max-height: 100%;
-          width: 100% !important;
-          height: 100% !important;
           object-fit: contain;
           display: block;
         }

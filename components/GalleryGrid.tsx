@@ -1,16 +1,27 @@
 "use client";
 
 import { Artwork } from '@/lib/store';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+
+// Define a type that includes the pre-calculated year
+type ArtworkWithYear = Artwork & { year: string };
 
 export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
-  const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
+  const [selectedArtwork, setSelectedArtwork] = useState<Artwork | ArtworkWithYear | null>(null);
 
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMedium, setSelectedMedium] = useState('all');
   const [selectedYear, setSelectedYear] = useState('all');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  // Pre-calculate years and wrap artworks with them to avoid repeated Date parsing
+  const enhancedArtworks = useMemo(() => {
+    return artworks.map(a => ({
+      ...a,
+      year: new Date(a.date).getFullYear().toString()
+    })) as ArtworkWithYear[];
+  }, [artworks]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -22,40 +33,55 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedArtwork, artworks]);
+  }, [selectedArtwork, enhancedArtworks]);
 
   const showNext = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (!selectedArtwork) return;
-    const currentIndex = artworks.findIndex(a => a.id === selectedArtwork.id);
-    const nextIndex = (currentIndex + 1) % artworks.length;
-    setSelectedArtwork(artworks[nextIndex]);
+    const currentIndex = enhancedArtworks.findIndex(a => a.id === selectedArtwork.id);
+    const nextIndex = (currentIndex + 1) % enhancedArtworks.length;
+    setSelectedArtwork(enhancedArtworks[nextIndex]);
   };
 
   const showPrev = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (!selectedArtwork) return;
-    const currentIndex = artworks.findIndex(a => a.id === selectedArtwork.id);
-    const prevIndex = (currentIndex - 1 + artworks.length) % artworks.length;
-    setSelectedArtwork(artworks[prevIndex]);
+    const currentIndex = enhancedArtworks.findIndex(a => a.id === selectedArtwork.id);
+    const prevIndex = (currentIndex - 1 + enhancedArtworks.length) % enhancedArtworks.length;
+    setSelectedArtwork(enhancedArtworks[prevIndex]);
   };
 
   // Extract unique mediums and years
-  const uniqueMediums = Array.from(new Set(artworks.map(a => a.medium))).sort();
-  const uniqueYears = Array.from(
-    new Set(artworks.map(a => new Date(a.date).getFullYear().toString()))
-  ).sort((a, b) => parseInt(b) - parseInt(a)); // Newest first
+  const uniqueMediums = useMemo(() =>
+    Array.from(new Set(enhancedArtworks.map(a => a.medium))).sort()
+  , [enhancedArtworks]);
+
+  const uniqueYears = useMemo(() =>
+    Array.from(
+      new Set(enhancedArtworks.map(a => a.year))
+    ).sort((a, b) => parseInt(b) - parseInt(a))
+  , [enhancedArtworks]); // Newest first
 
   // Filter artworks
-  const filteredArtworks = artworks.filter(artwork => {
-    const matchesSearch = artwork.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      artwork.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesMedium = selectedMedium === 'all' || artwork.medium === selectedMedium;
-    const matchesYear = selectedYear === 'all' ||
-      new Date(artwork.date).getFullYear().toString() === selectedYear;
+  const filteredArtworks = useMemo(() => {
+    const lowerQuery = searchQuery.toLowerCase();
 
-    return matchesSearch && matchesMedium && matchesYear;
-  });
+    return enhancedArtworks.filter(artwork => {
+      // 1. Medium filter (fast)
+      const matchesMedium = selectedMedium === 'all' || artwork.medium === selectedMedium;
+      if (!matchesMedium) return false;
+
+      // 2. Year filter (fast, using pre-calculated year)
+      const matchesYear = selectedYear === 'all' || artwork.year === selectedYear;
+      if (!matchesYear) return false;
+
+      // 3. Search query (expensive)
+      const matchesSearch = artwork.title.toLowerCase().includes(lowerQuery) ||
+        artwork.description?.toLowerCase().includes(lowerQuery);
+
+      return matchesSearch;
+    });
+  }, [enhancedArtworks, searchQuery, selectedMedium, selectedYear]);
 
   // Clear all filters
   const clearFilters = () => {
@@ -251,7 +277,7 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
             <img src={artwork.imageUrl} alt={artwork.title} loading="lazy" />
             <div className="artwork-overlay">
               <h3>{artwork.title}</h3>
-              <p>{new Date(artwork.date).getFullYear()}</p>
+              <p>{artwork.year}</p>
             </div>
           </div>
         ))}
@@ -273,7 +299,9 @@ export default function GalleryGrid({ artworks }: { artworks: Artwork[] }) {
             <img src={selectedArtwork.imageUrl} alt={selectedArtwork.title} />
             <div className="info">
               <h2>{selectedArtwork.title}</h2>
-              <p className="meta">{selectedArtwork.medium} • {new Date(selectedArtwork.date).getFullYear()} • {selectedArtwork.dimensions}</p>
+              <p className="meta">
+                {selectedArtwork.medium} • {'year' in selectedArtwork ? selectedArtwork.year : new Date(selectedArtwork.date).getFullYear()} • {selectedArtwork.dimensions}
+              </p>
               <p className="desc">{selectedArtwork.description}</p>
             </div>
           </div>

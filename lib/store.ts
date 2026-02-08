@@ -83,7 +83,10 @@ export async function getArtworks(options?: { revalidate?: number | false }): Pr
         const fetchOptions: RequestInit = {};
 
         if (options?.revalidate !== undefined) {
-            fetchOptions.next = { revalidate: options.revalidate };
+            fetchOptions.next = {
+                revalidate: options.revalidate,
+                tags: ['artworks']
+            };
             // Do not append timestamp to allow Next.js to cache by URL
         } else {
             // Default: fresh data

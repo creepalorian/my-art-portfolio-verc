@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { getArtworks, addArtwork } from '@/lib/store';
 
 export async function GET() {
@@ -40,6 +40,7 @@ export async function POST(request: Request) {
         // Invalidate cache
         revalidatePath('/works');
         revalidatePath('/');
+        revalidateTag('artworks', 'max');
 
         return NextResponse.json(updatedArtworks, { status: 201 });
     } catch (error) {
